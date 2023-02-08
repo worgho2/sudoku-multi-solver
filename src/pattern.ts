@@ -21,7 +21,19 @@ export const sudokuPatternData: {
         order: 4,
         filePath: path.resolve(filesPath, '4', 'default.json'),
         printBoard(board) {
-            console.table(board);
+            console.log('┏━━━┯━━━┳━━━┯━━━┓');
+
+            for (let i = 0; i < board.length; i++) {
+                console.log(`┃ ${board[i].slice(0, 2).join(' │ ')} ┃ ${board[i].slice(2, 4).join(' │ ')} ┃`);
+
+                if (i === board.length - 1) {
+                    console.log('┗━━━┷━━━┻━━━┷━━━┛');
+                } else if ((i + 1) % 2 === 0) {
+                    console.log('┣━━━┿━━━╋━━━┿━━━┫');
+                } else {
+                    console.log('┠───┼───╂───┼───┨');
+                }
+            }
         },
     },
     '9_default': {
@@ -39,7 +51,7 @@ export const sudokuPatternData: {
 
                 if (i === board.length - 1) {
                     console.log('┗━━━┷━━━┷━━━┻━━━┷━━━┷━━━┻━━━┷━━━┷━━━┛');
-                } else if ((i + 1) % Math.floor(Math.sqrt(board.length)) === 0) {
+                } else if ((i + 1) % 3 === 0) {
                     console.log('┣━━━┿━━━┿━━━╋━━━┿━━━┿━━━╋━━━┿━━━┿━━━┫');
                 } else {
                     console.log('┠───┼───┼───╂───┼───┼───╂───┼───┼───┨');
@@ -51,7 +63,24 @@ export const sudokuPatternData: {
         order: 16,
         filePath: path.resolve(filesPath, '16', 'default.json'),
         printBoard(board) {
-            console.log(1);
+            console.log('┏━━━━┯━━━━┯━━━━┯━━━━┳━━━━┯━━━━┯━━━━┯━━━━┳━━━━┯━━━━┯━━━━┯━━━━┳━━━━┯━━━━┯━━━━┯━━━━┓');
+
+            for (let i = 0; i < board.length; i++) {
+                const chunk = board[i].map((i) => String(i).padStart(2, ' '));
+                console.log(
+                    `┃ ${chunk.slice(0, 4).join(' │ ')} ┃ ${chunk.slice(4, 8).join(' │ ')} ┃ ${chunk
+                        .slice(8, 12)
+                        .join(' │ ')} ┃ ${chunk.slice(12, 16).join(' │ ')} ┃`
+                );
+
+                if (i === board.length - 1) {
+                    console.log('┗━━━━┷━━━━┷━━━━┷━━━━┻━━━━┷━━━━┷━━━━┷━━━━┻━━━━┷━━━━┷━━━━┷━━━━┻━━━━┷━━━━┷━━━━┷━━━━┛');
+                } else if ((i + 1) % 4 === 0) {
+                    console.log('┣━━━━┿━━━━┿━━━━┿━━━━╋━━━━┿━━━━┿━━━━┿━━━━╋━━━━┿━━━━┿━━━━┿━━━━╋━━━━┿━━━━┿━━━━┿━━━━┫');
+                } else {
+                    console.log('┠────┼────┼────┼────╂────┼────┼────┼────╂────┼────┼────┼────╂────┼────┼────┼────┨');
+                }
+            }
         },
     },
 };

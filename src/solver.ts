@@ -22,7 +22,11 @@ export default class SudokuSolver {
             pattern: this.#pattern,
         });
 
-        this.#run(graph);
+        const success = this.#run(graph);
+
+        if (success === false) {
+            throw new Error('Invalid input');
+        }
 
         if (data.printToConsole === true) {
             this.#printBoardFunction(this.#board);
