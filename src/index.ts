@@ -41,19 +41,19 @@ const input3 = [
 const solver1 = new SudokuSolver({
     board: input1,
     emptyIdentifier: -1,
-    pattern: '4_default',
+    pattern: '4_regular',
 });
 
 const solver2 = new SudokuSolver({
     board: input2,
     emptyIdentifier: -1,
-    pattern: '9_default',
+    pattern: '9_regular',
 });
 
 const solver3 = new SudokuSolver({
     board: input3,
     emptyIdentifier: -1,
-    pattern: '16_default',
+    pattern: '16_regular',
 });
 
 solver1.solve({ printToConsole: true });

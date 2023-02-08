@@ -1,9 +1,10 @@
 import path from 'node:path';
 
 export enum SudokuPattern {
-    '4_default',
-    '9_default',
-    '16_default',
+    '4_regular',
+    '5_cross',
+    '9_regular',
+    '16_regular',
 }
 
 export type SudokuPatternData = {
@@ -17,9 +18,9 @@ const filesPath: string = path.resolve(__dirname, '..', 'patterns');
 export const sudokuPatternData: {
     [k in keyof typeof SudokuPattern]: SudokuPatternData;
 } = {
-    '4_default': {
+    '4_regular': {
         order: 4,
-        filePath: path.resolve(filesPath, '4', 'default.json'),
+        filePath: path.resolve(filesPath, '4', 'regular.json'),
         printBoard(board) {
             console.log('┏━━━┯━━━┳━━━┯━━━┓');
 
@@ -36,9 +37,16 @@ export const sudokuPatternData: {
             }
         },
     },
-    '9_default': {
+    '5_cross': {
+        order: 5,
+        filePath: path.resolve(filesPath, '5', 'cross.json'),
+        printBoard(board) {
+            console.log(board);
+        },
+    },
+    '9_regular': {
         order: 9,
-        filePath: path.resolve(filesPath, '9', 'default.json'),
+        filePath: path.resolve(filesPath, '9', 'regular.json'),
         printBoard(board) {
             console.log('┏━━━┯━━━┯━━━┳━━━┯━━━┯━━━┳━━━┯━━━┯━━━┓');
 
@@ -59,9 +67,9 @@ export const sudokuPatternData: {
             }
         },
     },
-    '16_default': {
+    '16_regular': {
         order: 16,
-        filePath: path.resolve(filesPath, '16', 'default.json'),
+        filePath: path.resolve(filesPath, '16', 'regular.json'),
         printBoard(board) {
             console.log('┏━━━━┯━━━━┯━━━━┯━━━━┳━━━━┯━━━━┯━━━━┯━━━━┳━━━━┯━━━━┯━━━━┯━━━━┳━━━━┯━━━━┯━━━━┯━━━━┓');
 
