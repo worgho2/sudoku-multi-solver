@@ -20,7 +20,8 @@
 
 ![img](./assets/6x6_ladder.png)
 
-## 7x7 Diagonal `(WIP)`
+## 7x7 Diagonal
+- Pattern id: `7_diagonal`
 
 ![img](./assets/7x7_diagonal.png)
 

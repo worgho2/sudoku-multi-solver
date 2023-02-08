@@ -5,6 +5,7 @@ export enum SudokuPattern {
     '5_cross',
     '6_brickwall',
     '6_ladder',
+    '7_diagonal',
     '8_brickwall',
     '9_regular',
     '10_brickwall',
@@ -59,6 +60,13 @@ export const sudokuPatternData: {
     '6_ladder': {
         order: 6,
         filePath: path.resolve(filesPath, '6', 'ladder.json'),
+        printBoard(board) {
+            console.log(board);
+        },
+    },
+    '7_diagonal': {
+        order: 7,
+        filePath: path.resolve(filesPath, '7', 'diagonal.json'),
         printBoard(board) {
             console.log(board);
         },
