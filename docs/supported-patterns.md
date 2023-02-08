@@ -15,7 +15,8 @@
 
 ![img](./assets/6x6_brickwall.png)
 
-## 6x6 Ladder `(WIP)`
+## 6x6 Ladder
+- Pattern id: `6_ladder`
 
 ![img](./assets/6x6_ladder.png)
 
