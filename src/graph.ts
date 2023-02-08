@@ -1,3 +1,4 @@
+import SudokuSolverError from './errors';
 import SudokuNode from './node';
 import { SudokuPattern, sudokuPatternData } from './pattern';
 
@@ -10,11 +11,16 @@ export default class SudokuGraph {
         const patternData = sudokuPatternData[data.pattern];
 
         if (data.board.length !== patternData.order) {
-            throw new Error('Mismatch between choosen pattern order and board order');
+            throw new SudokuSolverError('BoardAndPatternMismatch');
         }
 
         this.#order = patternData.order;
-        this.#orderEdges = require(patternData.filePath) as { i: number; j: number }[][][];
+
+        try {
+            this.#orderEdges = require(patternData.filePath) as { i: number; j: number }[][][];
+        } catch (error) {
+            throw new SudokuSolverError('MissingPatternModelFile');
+        }
 
         const nodeMatrix: SudokuNode[][] = Array.from({ length: this.#order }, (_, i) =>
             Array.from(

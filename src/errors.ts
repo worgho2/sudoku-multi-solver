@@ -5,5 +5,8 @@ export default class SudokuSolverError extends Error {
 }
 
 enum SudokuErrorCategory {
-    InvalidEmptyIdentifier = 'InvalidEmptyIdentifier',
+    InvalidEmptyIdentifier = 'Empty identifier must be lower than 1',
+    InvalidBoard = 'Input board is invalid',
+    BoardAndPatternMismatch = 'Mismatch between choosen pattern order and board order',
+    MissingPatternModelFile = 'Missing model pattern file',
 }

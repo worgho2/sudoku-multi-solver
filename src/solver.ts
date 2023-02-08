@@ -1,3 +1,4 @@
+import SudokuSolverError from './errors';
 import SudokuGraph from './graph';
 import SudokuNode from './node';
 import { SudokuPattern, sudokuPatternData } from './pattern';
@@ -25,7 +26,7 @@ export default class SudokuSolver {
         const success = this.#run(graph);
 
         if (success === false) {
-            throw new Error('Invalid input');
+            throw new SudokuSolverError('InvalidBoard');
         }
 
         if (data.printToConsole === true) {
