@@ -59,6 +59,10 @@ function generatePatternModel(
     return sudokuPatternModel;
 }
 
+/**
+ * Blocks are sqrt(order) x sqrt(order)
+ * Valid orders: 4, 9, 16
+ */
 function getRegularBlockCoordinates(i: number, j: number, order: number): SudokuBlockCoordinates {
     const coordinates: SudokuBlockCoordinates = [];
 
@@ -124,12 +128,124 @@ function get5x5CrossBlockCoordinates(i: number, j: number, order: number = 5): S
     return [];
 }
 
+function get6x6BrickwallBlockCoordinates(i: number, j: number, order: number = 6): SudokuBlockCoordinates {
+    const coordinates: SudokuBlockCoordinates = [];
+
+    let iRef = 0;
+    let jRef = j >= 0 && j < 3 ? 0 : 3;
+
+    if (i >= 0 && i < 2) {
+        iRef = 0;
+    } else if (i >= 2 && i < 4) {
+        iRef = 2;
+    } else {
+        iRef = 4;
+    }
+
+    for (let k = iRef; k < iRef + 2; k++) {
+        for (let l = jRef; l < jRef + 3; l++) {
+            coordinates.push({ i: k, j: l });
+        }
+    }
+
+    return coordinates;
+}
+
+function get8x8BrickwallBlockCoordinates(i: number, j: number, order: number = 8): SudokuBlockCoordinates {
+    const coordinates: SudokuBlockCoordinates = [];
+
+    let iRef = 0;
+    let jRef = j >= 0 && j < 4 ? 0 : 4;
+
+    if (i >= 0 && i < 2) {
+        iRef = 0;
+    } else if (i >= 2 && i < 4) {
+        iRef = 2;
+    } else if (i >= 4 && i < 6) {
+        iRef = 4;
+    } else {
+        iRef = 6;
+    }
+
+    for (let k = iRef; k < iRef + 2; k++) {
+        for (let l = jRef; l < jRef + 4; l++) {
+            coordinates.push({ i: k, j: l });
+        }
+    }
+
+    return coordinates;
+}
+
+function get10x10BrickwallBlockCoordinates(i: number, j: number, order: number = 10): SudokuBlockCoordinates {
+    const coordinates: SudokuBlockCoordinates = [];
+
+    let iRef = 0;
+    let jRef = j >= 0 && j < 5 ? 0 : 5;
+
+    if (i >= 0 && i < 2) {
+        iRef = 0;
+    } else if (i >= 2 && i < 4) {
+        iRef = 2;
+    } else if (i >= 4 && i < 6) {
+        iRef = 4;
+    } else if (i >= 6 && i < 8) {
+        iRef = 6;
+    } else {
+        iRef = 8;
+    }
+
+    for (let k = iRef; k < iRef + 2; k++) {
+        for (let l = jRef; l < jRef + 5; l++) {
+            coordinates.push({ i: k, j: l });
+        }
+    }
+
+    return coordinates;
+}
+
+function get12x12BrickwallBlockCoordinates(i: number, j: number, order: number = 12): SudokuBlockCoordinates {
+    const coordinates: SudokuBlockCoordinates = [];
+
+    let iRef = 0;
+    let jRef = 0;
+
+    if (i >= 0 && i < 3) {
+        iRef = 0;
+    } else if (i >= 3 && i < 6) {
+        iRef = 3;
+    } else if (i >= 6 && i < 9) {
+        iRef = 6;
+    } else {
+        iRef = 9;
+    }
+
+    if (j >= 0 && j < 4) {
+        jRef = 0;
+    } else if (j >= 4 && j < 8) {
+        jRef = 4;
+    } else {
+        jRef = 8;
+    }
+
+    for (let k = iRef; k < iRef + 3; k++) {
+        for (let l = jRef; l < jRef + 4; l++) {
+            coordinates.push({ i: k, j: l });
+        }
+    }
+
+    return coordinates;
+}
+
 /**
  * Generate models and write to files
  */
 
 writeToFile(generatePatternModel(4, getRegularBlockCoordinates), 4, 'regular');
 writeToFile(generatePatternModel(5, get5x5CrossBlockCoordinates), 5, 'cross');
+writeToFile(generatePatternModel(6, get6x6BrickwallBlockCoordinates), 6, 'brickwall');
+writeToFile(generatePatternModel(8, get8x8BrickwallBlockCoordinates), 8, 'brickwall');
 writeToFile(generatePatternModel(9, getRegularBlockCoordinates), 9, 'regular');
+writeToFile(generatePatternModel(10, get10x10BrickwallBlockCoordinates), 10, 'brickwall');
+writeToFile(generatePatternModel(12, get12x12BrickwallBlockCoordinates), 12, 'brickwall');
 writeToFile(generatePatternModel(16, getRegularBlockCoordinates), 16, 'regular');
 writeToFile(generatePatternModel(16, getRegularBlockCoordinates), 16, 'regular');

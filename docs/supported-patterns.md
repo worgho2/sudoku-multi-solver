@@ -10,7 +10,8 @@
 
 ![img](./assets/5x5_cross.png)
 
-## 6x6 Brickwall `(WIP)`
+## 6x6 Brickwall
+- Pattern id: `6_brickwall`
 
 ![img](./assets/6x6_brickwall.png)
 
@@ -22,7 +23,8 @@
 
 ![img](./assets/7x7_diagonal.png)
 
-## 8x8 Brickwall `(WIP)`
+## 8x8 Brickwall
+- Pattern id: `8_brickwall`
 
 ![img](./assets/8x8_brickwall.png)
 
@@ -39,7 +41,8 @@
 
 ![img](./assets/9x9_regular.png)
 
-## 10x10 Brickwall `(WIP)`
+## 10x10 Brickwall
+- Pattern id: `10_brickwall`
 
 ![img](./assets/10x10_brickwall.png)
 
@@ -71,7 +74,8 @@
 
 ![img](./assets/12x12_ladder.png)
 
-## 12x12 Brickwall `(WIP)`
+## 12x12 Brickwall
+- Pattern id: `12_brickwall`
 
 ![img](./assets/12x12_brickwall.png)
 

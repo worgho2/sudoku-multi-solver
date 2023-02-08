@@ -3,7 +3,11 @@ import path from 'node:path';
 export enum SudokuPattern {
     '4_regular',
     '5_cross',
+    '6_brickwall',
+    '8_brickwall',
     '9_regular',
+    '10_brickwall',
+    '12_brickwall',
     '16_regular',
 }
 
@@ -44,6 +48,20 @@ export const sudokuPatternData: {
             console.log(board);
         },
     },
+    '6_brickwall': {
+        order: 6,
+        filePath: path.resolve(filesPath, '6', 'brickwall.json'),
+        printBoard(board) {
+            console.log(board);
+        },
+    },
+    '8_brickwall': {
+        order: 8,
+        filePath: path.resolve(filesPath, '8', 'brickwall.json'),
+        printBoard(board) {
+            console.log(board);
+        },
+    },
     '9_regular': {
         order: 9,
         filePath: path.resolve(filesPath, '9', 'regular.json'),
@@ -65,6 +83,20 @@ export const sudokuPatternData: {
                     console.log('┠───┼───┼───╂───┼───┼───╂───┼───┼───┨');
                 }
             }
+        },
+    },
+    '10_brickwall': {
+        order: 10,
+        filePath: path.resolve(filesPath, '10', 'brickwall.json'),
+        printBoard(board) {
+            console.log(board);
+        },
+    },
+    '12_brickwall': {
+        order: 12,
+        filePath: path.resolve(filesPath, '12', 'brickwall.json'),
+        printBoard(board) {
+            console.log(board);
         },
     },
     '16_regular': {
