@@ -7,6 +7,7 @@ export enum SudokuPattern {
     '6_ladder',
     '7_diagonal',
     '8_brickwall',
+    '8_ladder',
     '9_regular',
     '10_brickwall',
     '12_brickwall',
@@ -149,6 +150,14 @@ export const sudokuPatternData: {
                     console.log('┠   ┼   ┼   ┼   ╂   ┼   ┼   ┼   ┨');
                 }
             }
+        },
+    },
+    '8_ladder': {
+        order: 8,
+        filePath: path.resolve(filesPath, '8', 'brickwall.json'),
+        printBoard(board) {
+            console.log(`Printer not implemented`);
+            console.log(board);
         },
     },
     '9_regular': {

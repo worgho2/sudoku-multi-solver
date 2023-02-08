@@ -315,6 +315,69 @@ function get8x8BrickwallBlockCoordinates(i: number, j: number, order: number = 8
     return coordinates;
 }
 
+function get8x8LadderBlockCoordinates(i: number, j: number, order: number = 8): SudokuBlockCoordinates {
+    const coordinates: SudokuBlockCoordinates = [];
+
+    let iRef = 0;
+    let jRef = 0;
+    let iIncrement = 0;
+    let jIncrement = 0;
+
+    if (j >= 0 && j < 2) {
+        jRef = 0;
+        iIncrement = 4;
+        jIncrement = 2;
+
+        if (i >= 0 && i < 4) {
+            iRef = 0;
+        } else {
+            iRef = 4;
+        }
+    } else if (j >= 2 && j < 6) {
+        jRef = 2;
+        iIncrement = 2;
+        jIncrement = 4;
+
+        if (i >= 0 && i < 2) {
+            iRef = 0;
+        } else if (i >= 2 && i < 4) {
+            iRef = 2;
+        } else if (i >= 4 && i < 6) {
+            iRef = 4;
+        } else {
+            iRef = 6;
+        }
+    } else {
+        jRef = 6;
+        iIncrement = 4;
+        jIncrement = 2;
+
+        if (i >= 0 && i < 4) {
+            iRef = 0;
+        } else {
+            iRef = 4;
+        }
+    }
+
+    if (i >= 0 && i < 2) {
+        iRef = 0;
+    } else if (i >= 2 && i < 4) {
+        iRef = 2;
+    } else if (i >= 4 && i < 6) {
+        iRef = 4;
+    } else {
+        iRef = 6;
+    }
+
+    for (let k = iRef; k < iRef + iIncrement; k++) {
+        for (let l = jRef; l < jRef + jIncrement; l++) {
+            coordinates.push({ i: k, j: l });
+        }
+    }
+
+    return coordinates;
+}
+
 function get10x10BrickwallBlockCoordinates(i: number, j: number, order: number = 10): SudokuBlockCoordinates {
     const coordinates: SudokuBlockCoordinates = [];
 
@@ -385,6 +448,7 @@ writeToFile(generatePatternModel(6, get6x6BrickwallBlockCoordinates), 6, 'brickw
 writeToFile(generatePatternModel(6, get6x6LadderBlockCoordinates), 6, 'ladder');
 writeToFile(generatePatternModel(7, get7x7DiagonalBlockCoordinates), 7, 'diagonal');
 writeToFile(generatePatternModel(8, get8x8BrickwallBlockCoordinates), 8, 'brickwall');
+writeToFile(generatePatternModel(8, get8x8LadderBlockCoordinates), 8, 'ladder');
 writeToFile(generatePatternModel(9, getRegularBlockCoordinates), 9, 'regular');
 writeToFile(generatePatternModel(10, get10x10BrickwallBlockCoordinates), 10, 'brickwall');
 writeToFile(generatePatternModel(12, get12x12BrickwallBlockCoordinates), 12, 'brickwall');

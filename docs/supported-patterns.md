@@ -30,7 +30,8 @@
 
 ![img](./assets/8x8_brickwall.png)
 
-## 8x8 Ladder `(WIP)`
+## 8x8 Ladder
+- Pattern id: `8_ladder`
 
 ![img](./assets/8x8_ladder.png)
 
