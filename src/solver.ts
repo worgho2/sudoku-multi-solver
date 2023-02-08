@@ -1,20 +1,47 @@
 import SudokuGraph from './graph';
 import SudokuNode from './node';
+import { SudokuPattern, sudokuPatternData } from './pattern';
 
 export default class SudokuSolver {
-    static run(graph: SudokuGraph): boolean {
-        const node = SudokuSolver.getUnpaintedNodeWithHighestSaturation(graph);
+    #board: number[][];
+    #emptyIdentifier: number;
+    #pattern: keyof typeof SudokuPattern;
+    #printBoardFunction: (board: number[][]) => void;
+
+    constructor(data: { board: number[][]; emptyIdentifier: number; pattern: keyof typeof SudokuPattern }) {
+        this.#board = data.board;
+        this.#emptyIdentifier = data.emptyIdentifier;
+        this.#pattern = data.pattern;
+        this.#printBoardFunction = sudokuPatternData[data.pattern].printBoard;
+    }
+
+    solve(data: { printToConsole: boolean } = { printToConsole: false }): number[][] {
+        const graph = new SudokuGraph({
+            board: this.#board,
+            emptyIdentifier: this.#emptyIdentifier,
+            pattern: this.#pattern,
+        });
+
+        this.#run(graph);
+
+        if (data.printToConsole === true) {
+            this.#printBoardFunction(this.#board);
+        }
+
+        return this.#board;
+    }
+
+    #run(graph: SudokuGraph): boolean {
+        const node = this.#getUnpaintedNodeWithHighestSaturation(graph);
 
         if (node === undefined) {
             return true;
         }
 
-        const availableColors = node.getAvailableColor();
-
-        for (const color of availableColors) {
+        for (const color of node.getAvailableColors()) {
             node.setColor(color);
 
-            if (SudokuSolver.run(graph)) {
+            if (this.#run(graph)) {
                 return true;
             } else {
                 node.removeColor();
@@ -24,12 +51,7 @@ export default class SudokuSolver {
         return false;
     }
 
-    /**
-     * Find the uncolored node with highest saturation
-     *
-     * @param graph
-     */
-    static getUnpaintedNodeWithHighestSaturation(graph: SudokuGraph): SudokuNode | undefined {
+    #getUnpaintedNodeWithHighestSaturation(graph: SudokuGraph): SudokuNode | undefined {
         const unpaintedNodes = graph.nodes.filter((n) => !n.hasColor()).sort((a, b) => b.saturation - a.saturation);
         return unpaintedNodes.length === 0 ? undefined : unpaintedNodes[0];
     }
