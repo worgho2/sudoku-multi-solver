@@ -11,5 +11,6 @@
         "sourceMap": true,
         "outDir": "dist",
         "resolveJsonModule": true
-    }
+    },
+    "include": ["src/"]
 }

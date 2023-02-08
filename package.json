@@ -4,6 +4,7 @@
     "description": "Sudoku solver applying backtrack DSATUR algorithm [Korman 1979]",
     "main": "index.js",
     "scripts": {
+        "generate": "ts-node --esm scripts/generate-pattern-models.ts",
         "start": "tsc && node dist/index.js"
     },
     "repository": {
