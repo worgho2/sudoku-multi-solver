@@ -8,8 +8,13 @@ export enum SudokuPattern {
     '7_diagonal',
     '8_brickwall',
     '8_ladder',
+    '8_cross',
     '9_regular',
     '10_brickwall',
+    '10_ladder',
+    '10_ladder2',
+    '10_diagonal',
+    '10_diamond',
     '12_brickwall',
     '16_regular',
 }
@@ -154,7 +159,15 @@ export const sudokuPatternData: {
     },
     '8_ladder': {
         order: 8,
-        filePath: path.resolve(filesPath, '8', 'brickwall.json'),
+        filePath: path.resolve(filesPath, '8', 'ladder.json'),
+        printBoard(board) {
+            console.log(`Printer not implemented`);
+            console.log(board);
+        },
+    },
+    '8_cross': {
+        order: 8,
+        filePath: path.resolve(filesPath, '8', 'cross.json'),
         printBoard(board) {
             console.log(`Printer not implemented`);
             console.log(board);
@@ -201,6 +214,38 @@ export const sudokuPatternData: {
                     console.log('┠    ┼    ┼    ┼    ┼    ╂    ┼    ┼    ┼    ┼    ┨');
                 }
             }
+        },
+    },
+    '10_ladder': {
+        order: 10,
+        filePath: path.resolve(filesPath, '10', 'ladder.json'),
+        printBoard(board) {
+            console.log(`Printer nod implemented`);
+            console.log(board);
+        },
+    },
+    '10_ladder2': {
+        order: 10,
+        filePath: path.resolve(filesPath, '10', 'ladder2.json'),
+        printBoard(board) {
+            console.log(`Printer nod implemented`);
+            console.log(board);
+        },
+    },
+    '10_diagonal': {
+        order: 10,
+        filePath: path.resolve(filesPath, '10', 'diagonal.json'),
+        printBoard(board) {
+            console.log(`Printer nod implemented`);
+            console.log(board);
+        },
+    },
+    '10_diamond': {
+        order: 10,
+        filePath: path.resolve(filesPath, '10', 'diamond.json'),
+        printBoard(board) {
+            console.log(`Printer nod implemented`);
+            console.log(board);
         },
     },
     '12_brickwall': {
