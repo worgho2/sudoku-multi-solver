@@ -35,7 +35,8 @@
 
 ![img](./assets/8x8_ladder.png)
 
-## 8x8 Cross `(WIP)`
+## 8x8 Cross
+- Pattern id: `8_cross`
 
 ![img](./assets/8x8_cross.png)
 
@@ -49,19 +50,23 @@
 
 ![img](./assets/10x10_brickwall.png)
 
-## 10x10 Ladder `(WIP)`
+## 10x10 Ladder
+- Pattern id: `10_ladder`
 
 ![img](./assets/10x10_ladder.png)
 
-## 10x10 Ladder 2 `(WIP)`
+## 10x10 Ladder 2
+- Pattern id: `10_ladder2`
 
 ![img](./assets/10x10_ladder2.png)
 
-## 10x10 Diagonal `(WIP)`
+## 10x10 Diagonal
+- Pattern id: `10_diagonal`
 
 ![img](./assets/10x10_diagonal.png)
 
-## 10x10 Diamond `(WIP)`
+## 10x10 Diamond
+- Pattern id: `10_diamond`
 
 ![img](./assets/10x10_diamond.png)
 
