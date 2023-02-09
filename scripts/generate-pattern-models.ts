@@ -1,8 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-type SudokuBlockCoordinates = { i: number; j: number }[];
-type SudokuPatternModel = SudokuBlockCoordinates[][];
+type SudokuPatternModelBlock = [number, number][];
+type SudokuPatternModel = SudokuPatternModelBlock[][];
+type GetPatternModelBlockFunction = (i: number, j: number, order: number) => SudokuPatternModelBlock;
 
 /**
  * Writes pattern model to file
@@ -10,8 +11,9 @@ type SudokuPatternModel = SudokuBlockCoordinates[][];
  * @param order
  * @param patternName
  */
-function writeToFile(patternModel: SudokuPatternModel, order: number, patternName: string) {
-    const filePath = path.resolve(__dirname, '..', 'patterns', `${order}`, `${patternName}.json`);
+function writeToFile(patternModel: SudokuPatternModel, patternName: string) {
+    const order = patternModel.length;
+    const filePath = path.resolve(__dirname, '..', 'pattern-models', `${order}`, `${patternName}.json`);
 
     fs.writeFile(filePath, JSON.stringify(patternModel), function (err) {
         if (err) {
@@ -24,13 +26,10 @@ function writeToFile(patternModel: SudokuPatternModel, order: number, patternNam
 /**
  * Generates pattern model
  * @param order order size of board side
- * @param getBlockCoordinates function that gets block's coordinates based on current coordinate
+ * @param getPatternModelBlock function that gets block's coordinates based on current coordinate
  * @returns
  */
-function generatePatternModel(
-    order: number,
-    getBlockCoordinates: (i: number, j: number, order: number) => SudokuBlockCoordinates
-): SudokuPatternModel {
+function generatePatternModel(order: number, getPatternModelBlock: GetPatternModelBlockFunction): SudokuPatternModel {
     const sudokuPatternModel: SudokuPatternModel = Array.from({ length: order }, (_) =>
         Array.from({ length: order }, (_) => [])
     );
@@ -44,15 +43,15 @@ function generatePatternModel(
                 edgeSet.add(`${i}_${k}`);
             }
 
-            for (const coordinate of getBlockCoordinates(i, j, order)) {
-                edgeSet.add(`${coordinate.i}_${coordinate.j}`);
+            for (const blockItem of getPatternModelBlock(i, j, order)) {
+                edgeSet.add(`${blockItem[0]}_${blockItem[1]}`);
             }
 
             edgeSet.delete(`${i}_${j}`);
 
             sudokuPatternModel[i][j] = [...edgeSet.values()]
                 .map((index) => index.split('_').map((x) => parseInt(x)))
-                .map((pair) => ({ i: pair[0], j: pair[1] }));
+                .map((pair) => [pair[0], pair[1]]);
         }
     }
 
@@ -63,140 +62,116 @@ function generatePatternModel(
  * Blocks are sqrt(order) x sqrt(order)
  * Valid orders: 4, 9, 16
  */
-function getRegularBlockCoordinates(i: number, j: number, order: number): SudokuBlockCoordinates {
-    const coordinates: SudokuBlockCoordinates = [];
-
+function getAnyRegular(i: number, j: number, order: number): SudokuPatternModelBlock {
+    const coordinates: SudokuPatternModelBlock = [];
     const root = Math.floor(Math.sqrt(order));
     const iMult = Math.floor(i / root);
     const jMult = Math.floor(j / root);
 
     for (let k = root * iMult; k < root * iMult + root; k++) {
         for (let l = root * jMult; l < root * jMult + root; l++) {
-            coordinates.push({ i: k, j: l });
+            coordinates.push([k, l]);
         }
     }
 
     return coordinates;
 }
 
-function get5x5CrossBlockCoordinates(i: number, j: number, order: number = 5): SudokuBlockCoordinates {
-    const blocks = [
+function get5x5Cross(i: number, j: number, order: number): SudokuPatternModelBlock {
+    const blocks: [number, number][][] = [
         [
             [0, 0],
             [0, 1],
             [0, 2],
             [1, 0],
             [1, 1],
-        ],
-        [
-            [0, 3],
-            [0, 4],
-            [1, 3],
-            [1, 4],
-            [2, 4],
         ],
         [
             [2, 0],
             [3, 0],
-            [3, 1],
             [4, 0],
+            [3, 1],
             [4, 1],
         ],
         [
-            [3, 3],
-            [3, 4],
-            [4, 2],
-            [4, 3],
-            [4, 4],
+            [2, 1],
+            [1, 2],
+            [2, 2],
+            [3, 2],
+            [2, 3],
         ],
         [
-            [1, 2],
-            [2, 1],
-            [2, 2],
-            [2, 3],
-            [3, 2],
+            [0, 3],
+            [1, 3],
+            [0, 4],
+            [1, 4],
+            [2, 4],
+        ],
+        [
+            [4, 2],
+            [3, 3],
+            [4, 3],
+            [3, 4],
+            [4, 4],
         ],
     ];
 
     for (const block of blocks) {
-        for (const coordinate of block) {
-            if (i === coordinate[0] && j === coordinate[1]) {
-                return block.map((c) => ({ i: c[0], j: c[1] }));
+        for (const item of block) {
+            if (i === item[0] && j === item[1]) {
+                return block.map((c) => [c[0], c[1]]);
             }
         }
     }
-    return [];
+    throw new Error('ERROR');
 }
 
-function get6x6BrickwallBlockCoordinates(i: number, j: number, order: number = 6): SudokuBlockCoordinates {
-    const coordinates: SudokuBlockCoordinates = [];
-
-    let iRef = 0;
-    let jRef = j >= 0 && j < 3 ? 0 : 3;
-
-    if (i >= 0 && i < 2) {
-        iRef = 0;
-    } else if (i >= 2 && i < 4) {
-        iRef = 2;
-    } else {
-        iRef = 4;
-    }
-
-    for (let k = iRef; k < iRef + 2; k++) {
-        for (let l = jRef; l < jRef + 3; l++) {
-            coordinates.push({ i: k, j: l });
-        }
-    }
-
-    return coordinates;
-}
-
-function get6x6LadderBlockCoordinates(i: number, j: number, order: number = 6): SudokuBlockCoordinates {
+function get6x6Brickwall(i: number, j: number, order: number): SudokuPatternModelBlock {
     const blocks = [
         [
             [0, 0],
             [0, 1],
             [0, 2],
-            [0, 3],
             [1, 0],
             [1, 1],
+            [1, 2],
         ],
         [
+            [2, 0],
+            [2, 1],
+            [2, 2],
+            [3, 0],
+            [3, 1],
+            [3, 2],
+        ],
+        [
+            [4, 0],
+            [4, 1],
+            [4, 2],
+            [5, 0],
+            [5, 1],
+            [5, 2],
+        ],
+        [
+            [0, 3],
             [0, 4],
             [0, 5],
-            [1, 2],
             [1, 3],
             [1, 4],
             [1, 5],
         ],
         [
-            [2, 0],
-            [2, 1],
-            [2, 2],
             [2, 3],
-            [3, 0],
-            [3, 1],
-        ],
-        [
             [2, 4],
             [2, 5],
-            [3, 2],
             [3, 3],
             [3, 4],
             [3, 5],
         ],
         [
-            [4, 0],
-            [4, 1],
-            [4, 2],
             [4, 3],
-            [5, 0],
-            [5, 1],
-        ],
-        [
             [4, 4],
             [4, 5],
-            [5, 2],
             [5, 3],
             [5, 4],
             [5, 5],
@@ -204,25 +179,87 @@ function get6x6LadderBlockCoordinates(i: number, j: number, order: number = 6): 
     ];
 
     for (const block of blocks) {
-        for (const coordinate of block) {
-            if (i === coordinate[0] && j === coordinate[1]) {
-                return block.map((c) => ({ i: c[0], j: c[1] }));
+        for (const item of block) {
+            if (i === item[0] && j === item[1]) {
+                return block.map((c) => [c[0], c[1]]);
             }
         }
     }
-    return [];
+    throw new Error('ERROR');
 }
 
-function get7x7DiagonalBlockCoordinates(i: number, j: number, order: number = 7): SudokuBlockCoordinates {
-    const blocks = [
+function get6x6Ladder(i: number, j: number, order: number): SudokuPatternModelBlock {
+    const blocks: [number, number][][] = [
         [
             [0, 0],
             [0, 1],
             [1, 0],
             [1, 1],
+            [0, 2],
+            [0, 3],
+        ],
+        [
             [1, 2],
+            [1, 3],
+            [0, 4],
+            [0, 5],
+            [1, 4],
+            [1, 5],
+        ],
+        [
+            [2, 0],
+            [2, 1],
+            [3, 0],
+            [3, 1],
+            [2, 2],
+            [2, 3],
+        ],
+        [
+            [3, 2],
+            [3, 3],
+            [2, 4],
+            [2, 5],
+            [3, 4],
+            [3, 5],
+        ],
+        [
+            [4, 0],
+            [4, 1],
+            [5, 0],
+            [5, 1],
+            [4, 2],
+            [4, 3],
+        ],
+        [
+            [5, 2],
+            [5, 3],
+            [4, 4],
+            [4, 5],
+            [5, 4],
+            [5, 5],
+        ],
+    ];
+
+    for (const block of blocks) {
+        for (const item of block) {
+            if (i === item[0] && j === item[1]) {
+                return block.map((c) => [c[0], c[1]]);
+            }
+        }
+    }
+    throw new Error('ERROR');
+}
+
+function get7x7Diagonal(i: number, j: number, order: number): SudokuPatternModelBlock {
+    const blocks: [number, number][][] = [
+        [
+            [0, 0],
+            [0, 1],
+            [1, 0],
+            [1, 1],
             [2, 1],
             [2, 2],
+            [1, 2],
         ],
         [
             [0, 2],
@@ -234,31 +271,31 @@ function get7x7DiagonalBlockCoordinates(i: number, j: number, order: number = 7)
             [1, 5],
         ],
         [
-            [0, 6],
-            [1, 6],
-            [2, 5],
-            [2, 6],
-            [3, 5],
-            [3, 6],
-            [4, 6],
-        ],
-        [
             [2, 0],
             [3, 0],
-            [3, 1],
             [4, 0],
-            [4, 1],
             [5, 0],
             [6, 0],
+            [3, 1],
+            [4, 1],
         ],
         [
-            [2, 3],
-            [2, 4],
             [3, 2],
-            [3, 3],
-            [3, 4],
             [4, 2],
+            [2, 3],
+            [3, 3],
             [4, 3],
+            [2, 4],
+            [3, 4],
+        ],
+        [
+            [2, 5],
+            [3, 5],
+            [0, 6],
+            [1, 6],
+            [2, 6],
+            [3, 6],
+            [4, 6],
         ],
         [
             [5, 1],
@@ -274,121 +311,241 @@ function get7x7DiagonalBlockCoordinates(i: number, j: number, order: number = 7)
             [4, 5],
             [5, 4],
             [5, 5],
-            [5, 6],
             [6, 5],
             [6, 6],
+            [5, 6],
         ],
     ];
 
     for (const block of blocks) {
-        for (const coordinate of block) {
-            if (i === coordinate[0] && j === coordinate[1]) {
-                return block.map((c) => ({ i: c[0], j: c[1] }));
+        for (const item of block) {
+            if (i === item[0] && j === item[1]) {
+                return block.map((c) => [c[0], c[1]]);
             }
         }
     }
-    return [];
+    throw new Error('ERROR');
 }
 
-function get8x8BrickwallBlockCoordinates(i: number, j: number, order: number = 8): SudokuBlockCoordinates {
-    const coordinates: SudokuBlockCoordinates = [];
-
-    let iRef = 0;
-    let jRef = j >= 0 && j < 4 ? 0 : 4;
-
-    if (i >= 0 && i < 2) {
-        iRef = 0;
-    } else if (i >= 2 && i < 4) {
-        iRef = 2;
-    } else if (i >= 4 && i < 6) {
-        iRef = 4;
-    } else {
-        iRef = 6;
-    }
-
-    for (let k = iRef; k < iRef + 2; k++) {
-        for (let l = jRef; l < jRef + 4; l++) {
-            coordinates.push({ i: k, j: l });
-        }
-    }
-
-    return coordinates;
-}
-
-function get8x8LadderBlockCoordinates(i: number, j: number, order: number = 8): SudokuBlockCoordinates {
-    const coordinates: SudokuBlockCoordinates = [];
-
-    let iRef = 0;
-    let jRef = 0;
-    let iIncrement = 0;
-    let jIncrement = 0;
-
-    if (j >= 0 && j < 2) {
-        jRef = 0;
-        iIncrement = 4;
-        jIncrement = 2;
-
-        if (i >= 0 && i < 4) {
-            iRef = 0;
-        } else {
-            iRef = 4;
-        }
-    } else if (j >= 2 && j < 6) {
-        jRef = 2;
-        iIncrement = 2;
-        jIncrement = 4;
-
-        if (i >= 0 && i < 2) {
-            iRef = 0;
-        } else if (i >= 2 && i < 4) {
-            iRef = 2;
-        } else if (i >= 4 && i < 6) {
-            iRef = 4;
-        } else {
-            iRef = 6;
-        }
-    } else {
-        jRef = 6;
-        iIncrement = 4;
-        jIncrement = 2;
-
-        if (i >= 0 && i < 4) {
-            iRef = 0;
-        } else {
-            iRef = 4;
-        }
-    }
-
-    if (i >= 0 && i < 2) {
-        iRef = 0;
-    } else if (i >= 2 && i < 4) {
-        iRef = 2;
-    } else if (i >= 4 && i < 6) {
-        iRef = 4;
-    } else {
-        iRef = 6;
-    }
-
-    for (let k = iRef; k < iRef + iIncrement; k++) {
-        for (let l = jRef; l < jRef + jIncrement; l++) {
-            coordinates.push({ i: k, j: l });
-        }
-    }
-
-    return coordinates;
-}
-
-function get8x8CrossBlockCoordinates(i: number, j: number, order: number = 8): SudokuBlockCoordinates {
-    const blocks = [
+function get8x8Brickwall(i: number, j: number, order: number): SudokuPatternModelBlock {
+    const blocks: [number, number][][] = [
         [
             [0, 0],
             [0, 1],
             [0, 2],
+            [0, 3],
             [1, 0],
             [1, 1],
             [1, 2],
+            [1, 3],
+        ],
+        [
             [2, 0],
+            [2, 1],
+            [2, 2],
+            [2, 3],
+            [3, 0],
+            [3, 1],
+            [3, 2],
+            [3, 3],
+        ],
+        [
+            [4, 0],
+            [4, 1],
+            [4, 2],
+            [4, 3],
+            [5, 0],
+            [5, 1],
+            [5, 2],
+            [5, 3],
+        ],
+        [
+            [6, 0],
+            [6, 1],
+            [6, 2],
+            [6, 3],
+            [7, 0],
+            [7, 1],
+            [7, 2],
+            [7, 3],
+        ],
+        [
+            [0, 4],
+            [0, 5],
+            [0, 6],
+            [0, 7],
+            [1, 4],
+            [1, 5],
+            [1, 6],
+            [1, 7],
+        ],
+        [
+            [2, 4],
+            [2, 5],
+            [2, 6],
+            [2, 7],
+            [3, 4],
+            [3, 5],
+            [3, 6],
+            [3, 7],
+        ],
+        [
+            [4, 4],
+            [4, 5],
+            [4, 6],
+            [4, 7],
+            [5, 4],
+            [5, 5],
+            [5, 6],
+            [5, 7],
+        ],
+        [
+            [6, 4],
+            [6, 5],
+            [6, 6],
+            [6, 7],
+            [7, 4],
+            [7, 5],
+            [7, 6],
+            [7, 7],
+        ],
+    ];
+
+    for (const block of blocks) {
+        for (const item of block) {
+            if (i === item[0] && j === item[1]) {
+                return block.map((c) => [c[0], c[1]]);
+            }
+        }
+    }
+    throw new Error('ERROR');
+}
+
+function get8x8Ladder(i: number, j: number, order: number): SudokuPatternModelBlock {
+    const blocks: [number, number][][] = [
+        [
+            [0, 0],
             [0, 1],
+            [1, 0],
+            [1, 1],
+            [2, 0],
+            [2, 1],
+            [3, 0],
+            [3, 1],
+        ],
+        [
+            [4, 0],
+            [4, 1],
+            [5, 0],
+            [5, 1],
+            [6, 0],
+            [6, 1],
+            [7, 0],
+            [7, 1],
+        ],
+        [
+            [0, 2],
+            [0, 3],
+            [0, 4],
+            [0, 5],
+            [1, 2],
+            [1, 3],
+            [1, 4],
+            [1, 5],
+        ],
+        [
+            [2, 2],
+            [2, 3],
+            [2, 4],
+            [2, 5],
+            [3, 2],
+            [3, 3],
+            [3, 4],
+            [3, 5],
+        ],
+        [
+            [4, 2],
+            [4, 3],
+            [4, 4],
+            [4, 5],
+            [5, 2],
+            [5, 3],
+            [5, 4],
+            [5, 5],
+        ],
+        [
+            [6, 2],
+            [6, 3],
+            [6, 4],
+            [6, 5],
+            [7, 2],
+            [7, 3],
+            [7, 4],
+            [7, 5],
+        ],
+        [
+            [0, 6],
+            [0, 7],
+            [1, 6],
+            [1, 7],
+            [2, 6],
+            [2, 7],
+            [3, 6],
+            [3, 7],
+        ],
+        [
+            [4, 6],
+            [4, 7],
+            [5, 6],
+            [5, 7],
+            [6, 6],
+            [6, 7],
+            [7, 6],
+            [7, 7],
+        ],
+    ];
+
+    for (const block of blocks) {
+        for (const item of block) {
+            if (i === item[0] && j === item[1]) {
+                return block.map((c) => [c[0], c[1]]);
+            }
+        }
+    }
+    throw new Error('ERROR');
+}
+
+function get8x8Cross(i: number, j: number, order: number): SudokuPatternModelBlock {
+    const blocks: [number, number][][] = [
+        [
+            [3, 0],
+            [3, 1],
+            [3, 2],
+            [3, 3],
+            [4, 0],
+            [4, 1],
+            [4, 2],
+            [4, 3],
+        ],
+        [
+            [3, 4],
+            [3, 5],
+            [3, 6],
+            [3, 7],
+            [4, 4],
+            [4, 5],
+            [4, 6],
+            [4, 7],
+        ],
+        [
+            [0, 0],
+            [0, 1],
+            [1, 0],
+            [1, 1],
+            [2, 0],
+            [2, 1],
+            [0, 2],
+            [1, 2],
         ],
         [
             [0, 3],
@@ -411,33 +568,13 @@ function get8x8CrossBlockCoordinates(i: number, j: number, order: number = 8): S
             [2, 7],
         ],
         [
-            [3, 0],
-            [3, 1],
-            [3, 2],
-            [3, 3],
-            [4, 0],
-            [4, 1],
-            [4, 2],
-            [4, 3],
-        ],
-        [
-            [3, 4],
-            [3, 5],
-            [3, 6],
-            [3, 7],
-            [4, 4],
-            [4, 5],
-            [4, 6],
-            [4, 7],
-        ],
-        [
             [5, 0],
             [5, 1],
             [6, 0],
             [6, 1],
-            [6, 2],
             [7, 0],
             [7, 1],
+            [6, 2],
             [7, 2],
         ],
         [
@@ -453,54 +590,161 @@ function get8x8CrossBlockCoordinates(i: number, j: number, order: number = 8): S
         [
             [5, 6],
             [5, 7],
-            [6, 5],
             [6, 6],
             [6, 7],
-            [7, 5],
             [7, 6],
             [7, 7],
+            [6, 5],
+            [7, 5],
         ],
     ];
 
     for (const block of blocks) {
-        for (const coordinate of block) {
-            if (i === coordinate[0] && j === coordinate[1]) {
-                return block.map((c) => ({ i: c[0], j: c[1] }));
+        for (const item of block) {
+            if (i === item[0] && j === item[1]) {
+                return block.map((c) => [c[0], c[1]]);
             }
         }
     }
-    return [];
+    throw new Error('ERROR');
 }
 
-function get10x10BrickwallBlockCoordinates(i: number, j: number, order: number = 10): SudokuBlockCoordinates {
-    const coordinates: SudokuBlockCoordinates = [];
+function get10x10Brickwall(i: number, j: number, order: number): SudokuPatternModelBlock {
+    const blocks: [number, number][][] = [
+        [
+            [0, 0],
+            [0, 1],
+            [0, 2],
+            [0, 3],
+            [0, 4],
+            [1, 0],
+            [1, 1],
+            [1, 2],
+            [1, 3],
+            [1, 4],
+        ],
+        [
+            [2, 0],
+            [2, 1],
+            [2, 2],
+            [2, 3],
+            [2, 4],
+            [3, 0],
+            [3, 1],
+            [3, 2],
+            [3, 3],
+            [3, 4],
+        ],
+        [
+            [4, 0],
+            [4, 1],
+            [4, 2],
+            [4, 3],
+            [4, 4],
+            [5, 0],
+            [5, 1],
+            [5, 2],
+            [5, 3],
+            [5, 4],
+        ],
+        [
+            [6, 0],
+            [6, 1],
+            [6, 2],
+            [6, 3],
+            [6, 4],
+            [7, 0],
+            [7, 1],
+            [7, 2],
+            [7, 3],
+            [7, 4],
+        ],
+        [
+            [8, 0],
+            [8, 1],
+            [8, 2],
+            [8, 3],
+            [8, 4],
+            [9, 0],
+            [9, 1],
+            [9, 2],
+            [9, 3],
+            [9, 4],
+        ],
+        [
+            [0, 5],
+            [0, 6],
+            [0, 7],
+            [0, 8],
+            [0, 9],
+            [1, 5],
+            [1, 6],
+            [1, 7],
+            [1, 8],
+            [1, 9],
+        ],
+        [
+            [2, 5],
+            [2, 6],
+            [2, 7],
+            [2, 8],
+            [2, 9],
+            [3, 5],
+            [3, 6],
+            [3, 7],
+            [3, 8],
+            [3, 9],
+        ],
+        [
+            [4, 5],
+            [4, 6],
+            [4, 7],
+            [4, 8],
+            [4, 9],
+            [5, 5],
+            [5, 6],
+            [5, 7],
+            [5, 8],
+            [5, 9],
+        ],
+        [
+            [6, 5],
+            [6, 6],
+            [6, 7],
+            [6, 8],
+            [6, 9],
+            [7, 5],
+            [7, 6],
+            [7, 7],
+            [7, 8],
+            [7, 9],
+        ],
+        [
+            [8, 5],
+            [8, 6],
+            [8, 7],
+            [8, 8],
+            [8, 9],
+            [9, 5],
+            [9, 6],
+            [9, 7],
+            [9, 8],
+            [9, 9],
+        ],
+    ];
 
-    let iRef = 0;
-    let jRef = j >= 0 && j < 5 ? 0 : 5;
-
-    if (i >= 0 && i < 2) {
-        iRef = 0;
-    } else if (i >= 2 && i < 4) {
-        iRef = 2;
-    } else if (i >= 4 && i < 6) {
-        iRef = 4;
-    } else if (i >= 6 && i < 8) {
-        iRef = 6;
-    } else {
-        iRef = 8;
-    }
-
-    for (let k = iRef; k < iRef + 2; k++) {
-        for (let l = jRef; l < jRef + 5; l++) {
-            coordinates.push({ i: k, j: l });
+    for (const block of blocks) {
+        for (const item of block) {
+            if (i === item[0] && j === item[1]) {
+                return block.map((c) => [c[0], c[1]]);
+            }
         }
     }
-
-    return coordinates;
+    throw new Error('ERROR');
 }
 
-function get10x10LadderBlockCoordinates(i: number, j: number, order: number = 10): SudokuBlockCoordinates {
-    const blocks = [
+function get10x10Ladder(i: number, j: number, order: number): SudokuPatternModelBlock {
+    const blocks: [number, number][][] = [
         [
             [0, 0],
             [0, 1],
@@ -514,6 +758,30 @@ function get10x10LadderBlockCoordinates(i: number, j: number, order: number = 10
             [3, 0],
         ],
         [
+            [3, 1],
+            [3, 2],
+            [4, 1],
+            [4, 2],
+            [5, 1],
+            [5, 2],
+            [6, 1],
+            [6, 2],
+            [4, 0],
+            [5, 0],
+        ],
+        [
+            [6, 0],
+            [7, 0],
+            [8, 0],
+            [9, 0],
+            [7, 1],
+            [7, 2],
+            [8, 1],
+            [8, 2],
+            [9, 1],
+            [9, 2],
+        ],
+        [
             [0, 3],
             [0, 4],
             [0, 5],
@@ -524,6 +792,54 @@ function get10x10LadderBlockCoordinates(i: number, j: number, order: number = 10
             [1, 5],
             [1, 6],
             [1, 7],
+        ],
+        [
+            [2, 3],
+            [2, 4],
+            [2, 5],
+            [2, 6],
+            [2, 7],
+            [3, 3],
+            [3, 4],
+            [3, 5],
+            [3, 6],
+            [3, 7],
+        ],
+        [
+            [4, 3],
+            [4, 4],
+            [4, 5],
+            [4, 6],
+            [4, 7],
+            [5, 3],
+            [5, 4],
+            [5, 5],
+            [5, 6],
+            [5, 7],
+        ],
+        [
+            [6, 3],
+            [6, 4],
+            [6, 5],
+            [6, 6],
+            [6, 7],
+            [7, 3],
+            [7, 4],
+            [7, 5],
+            [7, 6],
+            [7, 7],
+        ],
+        [
+            [8, 3],
+            [8, 4],
+            [8, 5],
+            [8, 6],
+            [8, 7],
+            [9, 3],
+            [9, 4],
+            [9, 5],
+            [9, 6],
+            [9, 7],
         ],
         [
             [0, 8],
@@ -538,66 +854,6 @@ function get10x10LadderBlockCoordinates(i: number, j: number, order: number = 10
             [4, 9],
         ],
         [
-            [2, 3],
-            [2, 4],
-            [2, 5],
-            [2, 6],
-            [2, 7],
-            [3, 3],
-            [3, 4],
-            [3, 5],
-            [3, 6],
-            [3, 7],
-        ],
-        [
-            [3, 1],
-            [3, 2],
-            [4, 0],
-            [4, 1],
-            [4, 2],
-            [5, 0],
-            [5, 1],
-            [5, 2],
-            [6, 1],
-            [6, 2],
-        ],
-        [
-            [4, 3],
-            [4, 4],
-            [4, 5],
-            [4, 6],
-            [4, 7],
-            [5, 3],
-            [5, 4],
-            [5, 5],
-            [5, 6],
-            [5, 7],
-        ],
-        [
-            [6, 0],
-            [7, 0],
-            [7, 1],
-            [7, 2],
-            [8, 0],
-            [8, 1],
-            [8, 2],
-            [9, 0],
-            [9, 1],
-            [9, 2],
-        ],
-        [
-            [6, 3],
-            [6, 4],
-            [6, 5],
-            [6, 6],
-            [6, 7],
-            [7, 3],
-            [7, 4],
-            [7, 5],
-            [7, 6],
-            [7, 7],
-        ],
-        [
             [5, 8],
             [5, 9],
             [6, 8],
@@ -609,32 +865,20 @@ function get10x10LadderBlockCoordinates(i: number, j: number, order: number = 10
             [9, 8],
             [9, 9],
         ],
-        [
-            [8, 3],
-            [8, 4],
-            [8, 5],
-            [8, 6],
-            [8, 7],
-            [9, 3],
-            [9, 4],
-            [9, 5],
-            [9, 6],
-            [9, 7],
-        ],
     ];
 
     for (const block of blocks) {
-        for (const coordinate of block) {
-            if (i === coordinate[0] && j === coordinate[1]) {
-                return block.map((c) => ({ i: c[0], j: c[1] }));
+        for (const item of block) {
+            if (i === item[0] && j === item[1]) {
+                return block.map((c) => [c[0], c[1]]);
             }
         }
     }
-    return [];
+    throw new Error('ERROR');
 }
 
-function get10x10Ladder2BlockCoordinates(i: number, j: number, order: number = 10): SudokuBlockCoordinates {
-    const blocks = [
+function get10x10Ladder2(i: number, j: number, order: number): SudokuPatternModelBlock {
+    const blocks: [number, number][][] = [
         [
             [0, 0],
             [0, 1],
@@ -648,12 +892,12 @@ function get10x10Ladder2BlockCoordinates(i: number, j: number, order: number = 1
             [3, 0],
         ],
         [
+            [4, 0],
+            [5, 0],
             [3, 1],
             [3, 2],
-            [4, 0],
             [4, 1],
             [4, 2],
-            [5, 0],
             [5, 1],
             [5, 2],
             [6, 1],
@@ -662,12 +906,12 @@ function get10x10Ladder2BlockCoordinates(i: number, j: number, order: number = 1
         [
             [6, 0],
             [7, 0],
+            [8, 0],
+            [9, 0],
             [7, 1],
             [7, 2],
-            [8, 0],
             [8, 1],
             [8, 2],
-            [9, 0],
             [9, 1],
             [9, 2],
         ],
@@ -736,98 +980,98 @@ function get10x10Ladder2BlockCoordinates(i: number, j: number, order: number = 1
             [3, 8],
             [4, 7],
             [4, 8],
-            [4, 9],
             [5, 7],
             [5, 8],
-            [5, 9],
             [6, 7],
             [6, 8],
+            [4, 9],
+            [5, 9],
         ],
         [
             [6, 9],
+            [7, 9],
+            [8, 9],
+            [9, 9],
             [7, 7],
             [7, 8],
-            [7, 9],
             [8, 7],
             [8, 8],
-            [8, 9],
             [9, 7],
             [9, 8],
-            [9, 9],
         ],
     ];
 
     for (const block of blocks) {
-        for (const coordinate of block) {
-            if (i === coordinate[0] && j === coordinate[1]) {
-                return block.map((c) => ({ i: c[0], j: c[1] }));
+        for (const item of block) {
+            if (i === item[0] && j === item[1]) {
+                return block.map((c) => [c[0], c[1]]);
             }
         }
     }
-    return [];
+    throw new Error('ERROR');
 }
 
-function get10x10DiagonalBlockCoordinates(i: number, j: number, order: number = 10): SudokuBlockCoordinates {
-    const blocks = [
+function get10x10Diagonal(i: number, j: number, order: number): SudokuPatternModelBlock {
+    const blocks: [number, number][][] = [
         [
             [0, 0],
-            [0, 1],
-            [0, 2],
-            [0, 3],
             [1, 0],
-            [1, 1],
-            [1, 2],
             [2, 0],
-            [2, 1],
             [3, 0],
+            [0, 1],
+            [1, 1],
+            [2, 1],
+            [0, 2],
+            [1, 2],
+            [0, 3],
         ],
         [
-            [0, 4],
-            [1, 3],
-            [1, 4],
-            [2, 2],
-            [2, 3],
-            [3, 1],
-            [3, 2],
+            [5, 0],
             [4, 0],
             [4, 1],
-            [5, 0],
+            [3, 1],
+            [3, 2],
+            [2, 2],
+            [2, 3],
+            [1, 3],
+            [1, 4],
+            [0, 4],
         ],
         [
-            [2, 4],
-            [3, 3],
-            [3, 4],
-            [4, 2],
-            [4, 3],
-            [5, 1],
-            [5, 2],
+            [7, 0],
             [6, 0],
             [6, 1],
-            [7, 0],
+            [5, 1],
+            [5, 2],
+            [4, 2],
+            [4, 3],
+            [3, 3],
+            [3, 4],
+            [2, 4],
         ],
         [
-            [4, 4],
-            [5, 3],
-            [5, 4],
-            [6, 2],
-            [6, 3],
-            [7, 1],
-            [7, 2],
+            [9, 0],
             [8, 0],
             [8, 1],
-            [9, 0],
+            [7, 1],
+            [7, 2],
+            [6, 2],
+            [6, 3],
+            [5, 3],
+            [5, 4],
+            [4, 4],
         ],
         [
-            [6, 4],
-            [7, 3],
-            [7, 4],
-            [8, 2],
-            [8, 3],
-            [8, 4],
             [9, 1],
             [9, 2],
             [9, 3],
             [9, 4],
+            [8, 2],
+            [8, 3],
+            [8, 4],
+            [7, 3],
+            [7, 4],
+            [6, 4],
         ],
         [
             [0, 5],
@@ -842,67 +1086,67 @@ function get10x10DiagonalBlockCoordinates(i: number, j: number, order: number = 
             [3, 5],
         ],
         [
-            [0, 9],
-            [1, 8],
-            [1, 9],
-            [2, 7],
-            [2, 8],
-            [3, 6],
-            [3, 7],
+            [5, 5],
             [4, 5],
             [4, 6],
-            [5, 5],
+            [3, 6],
+            [3, 7],
+            [2, 7],
+            [2, 8],
+            [1, 8],
+            [1, 9],
+            [0, 9],
         ],
         [
-            [2, 9],
-            [3, 8],
-            [3, 9],
-            [4, 7],
-            [4, 8],
-            [5, 6],
-            [5, 7],
+            [7, 5],
             [6, 5],
             [6, 6],
-            [7, 5],
+            [5, 6],
+            [5, 7],
+            [4, 7],
+            [4, 8],
+            [3, 8],
+            [3, 9],
+            [2, 9],
         ],
         [
-            [4, 9],
-            [5, 8],
-            [5, 9],
-            [6, 7],
-            [6, 8],
-            [7, 6],
-            [7, 7],
+            [9, 5],
             [8, 5],
             [8, 6],
-            [9, 5],
+            [7, 6],
+            [7, 7],
+            [6, 7],
+            [6, 8],
+            [5, 8],
+            [5, 9],
+            [4, 9],
         ],
         [
-            [6, 9],
-            [7, 8],
-            [7, 9],
-            [8, 7],
-            [8, 8],
-            [8, 9],
             [9, 6],
             [9, 7],
             [9, 8],
             [9, 9],
+            [8, 7],
+            [8, 8],
+            [8, 9],
+            [7, 8],
+            [7, 9],
+            [6, 9],
         ],
     ];
 
     for (const block of blocks) {
-        for (const coordinate of block) {
-            if (i === coordinate[0] && j === coordinate[1]) {
-                return block.map((c) => ({ i: c[0], j: c[1] }));
+        for (const item of block) {
+            if (i === item[0] && j === item[1]) {
+                return block.map((c) => [c[0], c[1]]);
             }
         }
     }
-    return [];
+    throw new Error('ERROR');
 }
 
-function get10x10DiamondBlockCoordinates(i: number, j: number, order: number = 10): SudokuBlockCoordinates {
-    const blocks = [
+function get10x10Diamond(i: number, j: number, order: number): SudokuPatternModelBlock {
+    const blocks: [number, number][][] = [
         [
             [0, 0],
             [0, 1],
@@ -916,16 +1160,16 @@ function get10x10DiamondBlockCoordinates(i: number, j: number, order: number = 1
             [3, 0],
         ],
         [
-            [1, 3],
-            [2, 2],
-            [2, 3],
-            [3, 1],
-            [3, 2],
-            [3, 3],
             [4, 0],
             [4, 1],
             [4, 2],
             [4, 3],
+            [3, 1],
+            [3, 2],
+            [3, 3],
+            [2, 2],
+            [2, 3],
+            [1, 3],
         ],
         [
             [5, 0],
@@ -940,16 +1184,16 @@ function get10x10DiamondBlockCoordinates(i: number, j: number, order: number = 1
             [8, 3],
         ],
         [
-            [6, 0],
-            [7, 0],
-            [7, 1],
-            [8, 0],
-            [8, 1],
-            [8, 2],
             [9, 0],
             [9, 1],
             [9, 2],
             [9, 3],
+            [8, 0],
+            [8, 1],
+            [8, 2],
+            [7, 0],
+            [7, 1],
+            [6, 0],
         ],
         [
             [0, 4],
@@ -988,16 +1232,16 @@ function get10x10DiamondBlockCoordinates(i: number, j: number, order: number = 1
             [3, 9],
         ],
         [
-            [1, 6],
-            [2, 6],
-            [2, 7],
-            [3, 6],
-            [3, 7],
-            [3, 8],
             [4, 6],
             [4, 7],
             [4, 8],
             [4, 9],
+            [3, 6],
+            [3, 7],
+            [3, 8],
+            [2, 6],
+            [2, 7],
+            [1, 6],
         ],
         [
             [5, 6],
@@ -1012,79 +1256,781 @@ function get10x10DiamondBlockCoordinates(i: number, j: number, order: number = 1
             [8, 6],
         ],
         [
-            [6, 9],
-            [7, 8],
-            [7, 9],
-            [8, 7],
-            [8, 8],
-            [8, 9],
             [9, 6],
             [9, 7],
             [9, 8],
             [9, 9],
+            [8, 7],
+            [8, 8],
+            [8, 9],
+            [7, 8],
+            [7, 9],
+            [6, 9],
         ],
     ];
 
     for (const block of blocks) {
-        for (const coordinate of block) {
-            if (i === coordinate[0] && j === coordinate[1]) {
-                return block.map((c) => ({ i: c[0], j: c[1] }));
+        for (const item of block) {
+            if (i === item[0] && j === item[1]) {
+                return block.map((c) => [c[0], c[1]]);
             }
         }
     }
-    return [];
+    throw new Error('ERROR');
 }
 
-function get12x12BrickwallBlockCoordinates(i: number, j: number, order: number = 12): SudokuBlockCoordinates {
-    const coordinates: SudokuBlockCoordinates = [];
+function get12x12Brickwall(i: number, j: number, order: number): SudokuPatternModelBlock {
+    const blocks: [number, number][][] = [
+        [
+            [0, 0],
+            [0, 1],
+            [0, 2],
+            [0, 3],
+            [1, 0],
+            [1, 1],
+            [1, 2],
+            [1, 3],
+            [2, 0],
+            [2, 1],
+            [2, 2],
+            [2, 3],
+        ],
+        [
+            [3, 0],
+            [3, 1],
+            [3, 2],
+            [3, 3],
+            [4, 0],
+            [4, 1],
+            [4, 2],
+            [4, 3],
+            [5, 0],
+            [5, 1],
+            [5, 2],
+            [5, 3],
+        ],
+        [
+            [6, 0],
+            [6, 1],
+            [6, 2],
+            [6, 3],
+            [7, 0],
+            [7, 1],
+            [7, 2],
+            [7, 3],
+            [8, 0],
+            [8, 1],
+            [8, 2],
+            [8, 3],
+        ],
+        [
+            [9, 0],
+            [9, 1],
+            [9, 2],
+            [9, 3],
+            [10, 0],
+            [10, 1],
+            [10, 2],
+            [10, 3],
+            [11, 0],
+            [11, 1],
+            [11, 2],
+            [11, 3],
+        ],
+        [
+            [0, 4],
+            [0, 5],
+            [0, 6],
+            [0, 7],
+            [1, 4],
+            [1, 5],
+            [1, 6],
+            [1, 7],
+            [2, 4],
+            [2, 5],
+            [2, 6],
+            [2, 7],
+        ],
+        [
+            [3, 4],
+            [3, 5],
+            [3, 6],
+            [3, 7],
+            [4, 4],
+            [4, 5],
+            [4, 6],
+            [4, 7],
+            [5, 4],
+            [5, 5],
+            [5, 6],
+            [5, 7],
+        ],
+        [
+            [6, 4],
+            [6, 5],
+            [6, 6],
+            [6, 7],
+            [7, 4],
+            [7, 5],
+            [7, 6],
+            [7, 7],
+            [8, 4],
+            [8, 5],
+            [8, 6],
+            [8, 7],
+        ],
+        [
+            [9, 4],
+            [9, 5],
+            [9, 6],
+            [9, 7],
+            [10, 4],
+            [10, 5],
+            [10, 6],
+            [10, 7],
+            [11, 4],
+            [11, 5],
+            [11, 6],
+            [11, 7],
+        ],
+        [
+            [0, 8],
+            [0, 9],
+            [0, 10],
+            [0, 11],
+            [1, 8],
+            [1, 9],
+            [1, 10],
+            [1, 11],
+            [2, 8],
+            [2, 9],
+            [2, 10],
+            [2, 11],
+        ],
+        [
+            [3, 8],
+            [3, 9],
+            [3, 10],
+            [3, 11],
+            [4, 8],
+            [4, 9],
+            [4, 10],
+            [4, 11],
+            [5, 8],
+            [5, 9],
+            [5, 10],
+            [5, 11],
+        ],
+        [
+            [6, 8],
+            [6, 9],
+            [6, 10],
+            [6, 11],
+            [7, 8],
+            [7, 9],
+            [7, 10],
+            [7, 11],
+            [8, 8],
+            [8, 9],
+            [8, 10],
+            [8, 11],
+        ],
+        [
+            [9, 8],
+            [9, 9],
+            [9, 10],
+            [9, 11],
+            [10, 8],
+            [10, 9],
+            [10, 10],
+            [10, 11],
+            [11, 8],
+            [11, 9],
+            [11, 10],
+            [11, 11],
+        ],
+    ];
 
-    let iRef = 0;
-    let jRef = 0;
-
-    if (i >= 0 && i < 3) {
-        iRef = 0;
-    } else if (i >= 3 && i < 6) {
-        iRef = 3;
-    } else if (i >= 6 && i < 9) {
-        iRef = 6;
-    } else {
-        iRef = 9;
-    }
-
-    if (j >= 0 && j < 4) {
-        jRef = 0;
-    } else if (j >= 4 && j < 8) {
-        jRef = 4;
-    } else {
-        jRef = 8;
-    }
-
-    for (let k = iRef; k < iRef + 3; k++) {
-        for (let l = jRef; l < jRef + 4; l++) {
-            coordinates.push({ i: k, j: l });
+    for (const block of blocks) {
+        for (const item of block) {
+            if (i === item[0] && j === item[1]) {
+                return block.map((c) => [c[0], c[1]]);
+            }
         }
     }
-
-    return coordinates;
+    throw new Error('ERROR');
 }
 
-/**
- * Generate models and write to files
- */
+function get12x12Cross(i: number, j: number, order: number): SudokuPatternModelBlock {
+    const blocks: [number, number][][] = [
+        [
+            [0, 0],
+            [0, 1],
+            [0, 2],
+            [1, 0],
+            [1, 1],
+            [1, 2],
+            [2, 0],
+            [2, 1],
+            [2, 2],
+            [3, 0],
+            [3, 1],
+            [3, 2],
+        ],
+        [
+            [0, 3],
+            [0, 4],
+            [0, 5],
+            [1, 3],
+            [1, 4],
+            [1, 5],
+            [2, 3],
+            [2, 4],
+            [2, 5],
+            [3, 3],
+            [3, 4],
+            [3, 5],
+        ],
+        [
+            [4, 0],
+            [4, 1],
+            [4, 2],
+            [4, 3],
+            [4, 4],
+            [4, 5],
+            [5, 0],
+            [5, 1],
+            [5, 2],
+            [5, 3],
+            [5, 4],
+            [5, 5],
+        ],
+        [
+            [0, 6],
+            [0, 7],
+            [1, 6],
+            [1, 7],
+            [2, 6],
+            [2, 7],
+            [3, 6],
+            [3, 7],
+            [4, 6],
+            [4, 7],
+            [5, 6],
+            [5, 7],
+        ],
+        [
+            [0, 8],
+            [0, 9],
+            [0, 10],
+            [0, 11],
+            [1, 8],
+            [1, 9],
+            [1, 10],
+            [1, 11],
+            [2, 8],
+            [2, 9],
+            [2, 10],
+            [2, 11],
+        ],
+        [
+            [3, 8],
+            [3, 9],
+            [3, 10],
+            [3, 11],
+            [4, 8],
+            [4, 9],
+            [4, 10],
+            [4, 11],
+            [5, 8],
+            [5, 9],
+            [5, 10],
+            [5, 11],
+        ],
+        [
+            [6, 0],
+            [6, 1],
+            [6, 2],
+            [6, 3],
+            [7, 0],
+            [7, 1],
+            [7, 2],
+            [7, 3],
+            [8, 0],
+            [8, 1],
+            [8, 2],
+            [8, 3],
+        ],
+        [
+            [9, 0],
+            [9, 1],
+            [9, 2],
+            [9, 3],
+            [10, 0],
+            [10, 1],
+            [10, 2],
+            [10, 3],
+            [11, 0],
+            [11, 1],
+            [11, 2],
+            [11, 3],
+        ],
+        [
+            [6, 4],
+            [6, 5],
+            [7, 4],
+            [7, 5],
+            [8, 4],
+            [8, 5],
+            [9, 4],
+            [9, 5],
+            [10, 4],
+            [10, 5],
+            [11, 4],
+            [11, 5],
+        ],
+        [
+            [6, 6],
+            [6, 7],
+            [6, 8],
+            [6, 9],
+            [6, 10],
+            [6, 11],
+            [7, 6],
+            [7, 7],
+            [7, 8],
+            [7, 9],
+            [7, 10],
+            [7, 11],
+        ],
+        [
+            [8, 6],
+            [8, 7],
+            [8, 8],
+            [9, 6],
+            [9, 7],
+            [9, 8],
+            [10, 6],
+            [10, 7],
+            [10, 8],
+            [11, 6],
+            [11, 7],
+            [11, 8],
+        ],
+        [
+            [8, 9],
+            [8, 10],
+            [8, 11],
+            [9, 9],
+            [9, 10],
+            [9, 11],
+            [10, 9],
+            [10, 10],
+            [10, 11],
+            [11, 9],
+            [11, 10],
+            [11, 11],
+        ],
+    ];
 
-writeToFile(generatePatternModel(4, getRegularBlockCoordinates), 4, 'regular');
-writeToFile(generatePatternModel(5, get5x5CrossBlockCoordinates), 5, 'cross');
-writeToFile(generatePatternModel(6, get6x6BrickwallBlockCoordinates), 6, 'brickwall');
-writeToFile(generatePatternModel(6, get6x6LadderBlockCoordinates), 6, 'ladder');
-writeToFile(generatePatternModel(7, get7x7DiagonalBlockCoordinates), 7, 'diagonal');
-writeToFile(generatePatternModel(8, get8x8BrickwallBlockCoordinates), 8, 'brickwall');
-writeToFile(generatePatternModel(8, get8x8LadderBlockCoordinates), 8, 'ladder');
-writeToFile(generatePatternModel(8, get8x8CrossBlockCoordinates), 8, 'cross');
-writeToFile(generatePatternModel(9, getRegularBlockCoordinates), 9, 'regular');
-writeToFile(generatePatternModel(10, get10x10BrickwallBlockCoordinates), 10, 'brickwall');
-writeToFile(generatePatternModel(10, get10x10LadderBlockCoordinates), 10, 'ladder');
-writeToFile(generatePatternModel(10, get10x10Ladder2BlockCoordinates), 10, 'ladder2');
-writeToFile(generatePatternModel(10, get10x10DiagonalBlockCoordinates), 10, 'diagonal');
-writeToFile(generatePatternModel(10, get10x10DiamondBlockCoordinates), 10, 'diamond');
-writeToFile(generatePatternModel(12, get12x12BrickwallBlockCoordinates), 12, 'brickwall');
-writeToFile(generatePatternModel(16, getRegularBlockCoordinates), 16, 'regular');
+    for (const block of blocks) {
+        for (const item of block) {
+            if (i === item[0] && j === item[1]) {
+                return block.map((c) => [c[0], c[1]]);
+            }
+        }
+    }
+    throw new Error('ERROR');
+}
+
+function get12x12ShortAndLong(i: number, j: number, order: number): SudokuPatternModelBlock {
+    const blocks: [number, number][][] = [
+        [
+            [0, 0],
+            [0, 1],
+            [1, 0],
+            [1, 1],
+            [2, 0],
+            [2, 1],
+            [3, 0],
+            [3, 1],
+            [4, 0],
+            [4, 1],
+            [5, 0],
+            [5, 1],
+        ],
+        [
+            [0, 2],
+            [0, 3],
+            [0, 4],
+            [0, 5],
+            [1, 2],
+            [1, 3],
+            [1, 4],
+            [1, 5],
+            [2, 2],
+            [2, 3],
+            [2, 4],
+            [2, 5],
+        ],
+        [
+            [3, 2],
+            [3, 3],
+            [3, 4],
+            [3, 5],
+            [4, 2],
+            [4, 3],
+            [4, 4],
+            [4, 5],
+            [5, 2],
+            [5, 3],
+            [5, 4],
+            [5, 5],
+        ],
+        [
+            [0, 6],
+            [0, 7],
+            [1, 6],
+            [1, 7],
+            [2, 6],
+            [2, 7],
+            [3, 6],
+            [3, 7],
+            [4, 6],
+            [4, 7],
+            [5, 6],
+            [5, 7],
+        ],
+        [
+            [0, 8],
+            [0, 9],
+            [0, 10],
+            [0, 11],
+            [1, 8],
+            [1, 9],
+            [1, 10],
+            [1, 11],
+            [2, 8],
+            [2, 9],
+            [2, 10],
+            [2, 11],
+        ],
+        [
+            [3, 8],
+            [3, 9],
+            [3, 10],
+            [3, 11],
+            [4, 8],
+            [4, 9],
+            [4, 10],
+            [4, 11],
+            [5, 8],
+            [5, 9],
+            [5, 10],
+            [5, 11],
+        ],
+        [
+            [6, 0],
+            [6, 1],
+            [6, 2],
+            [6, 3],
+            [7, 0],
+            [7, 1],
+            [7, 2],
+            [7, 3],
+            [8, 0],
+            [8, 1],
+            [8, 2],
+            [8, 3],
+        ],
+        [
+            [9, 0],
+            [9, 1],
+            [9, 2],
+            [9, 3],
+            [10, 0],
+            [10, 1],
+            [10, 2],
+            [10, 3],
+            [11, 0],
+            [11, 1],
+            [11, 2],
+            [11, 3],
+        ],
+        [
+            [6, 4],
+            [6, 5],
+            [7, 4],
+            [7, 5],
+            [8, 4],
+            [8, 5],
+            [9, 4],
+            [9, 5],
+            [10, 4],
+            [10, 5],
+            [11, 4],
+            [11, 5],
+        ],
+        [
+            [6, 6],
+            [6, 7],
+            [6, 8],
+            [6, 9],
+            [7, 6],
+            [7, 7],
+            [7, 8],
+            [7, 9],
+            [8, 6],
+            [8, 7],
+            [8, 8],
+            [8, 9],
+        ],
+        [
+            [9, 6],
+            [9, 7],
+            [9, 8],
+            [9, 9],
+            [10, 6],
+            [10, 7],
+            [10, 8],
+            [10, 9],
+            [11, 6],
+            [11, 7],
+            [11, 8],
+            [11, 9],
+        ],
+        [
+            [6, 10],
+            [6, 11],
+            [7, 10],
+            [7, 11],
+            [8, 10],
+            [8, 11],
+            [9, 10],
+            [9, 11],
+            [10, 10],
+            [10, 11],
+            [11, 10],
+            [11, 11],
+        ],
+    ];
+
+    for (const block of blocks) {
+        for (const item of block) {
+            if (i === item[0] && j === item[1]) {
+                return block.map((c) => [c[0], c[1]]);
+            }
+        }
+    }
+    throw new Error('ERROR');
+}
+
+function get12x12Ladder(i: number, j: number, order: number): SudokuPatternModelBlock {
+    const blocks: [number, number][][] = [
+        [
+            [0, 0],
+            [0, 1],
+            [0, 2],
+            [1, 0],
+            [1, 1],
+            [1, 2],
+            [2, 0],
+            [2, 1],
+            [2, 2],
+            [3, 0],
+            [3, 1],
+            [3, 2],
+        ],
+        [
+            [4, 0],
+            [4, 1],
+            [4, 2],
+            [5, 0],
+            [5, 1],
+            [5, 2],
+            [6, 0],
+            [6, 1],
+            [6, 2],
+            [7, 0],
+            [7, 1],
+            [7, 2],
+        ],
+        [
+            [8, 0],
+            [8, 1],
+            [8, 2],
+            [9, 0],
+            [9, 1],
+            [9, 2],
+            [10, 0],
+            [10, 1],
+            [10, 2],
+            [11, 0],
+            [11, 1],
+            [11, 2],
+        ],
+        [
+            [0, 3],
+            [0, 4],
+            [0, 5],
+            [0, 6],
+            [0, 7],
+            [0, 8],
+            [1, 3],
+            [1, 4],
+            [1, 5],
+            [1, 6],
+            [1, 7],
+            [1, 8],
+        ],
+        [
+            [2, 3],
+            [2, 4],
+            [2, 5],
+            [2, 6],
+            [2, 7],
+            [2, 8],
+            [3, 3],
+            [3, 4],
+            [3, 5],
+            [3, 6],
+            [3, 7],
+            [3, 8],
+        ],
+        [
+            [4, 3],
+            [4, 4],
+            [4, 5],
+            [4, 6],
+            [4, 7],
+            [4, 8],
+            [5, 3],
+            [5, 4],
+            [5, 5],
+            [5, 6],
+            [5, 7],
+            [5, 8],
+        ],
+        [
+            [6, 3],
+            [6, 4],
+            [6, 5],
+            [6, 6],
+            [6, 7],
+            [6, 8],
+            [7, 3],
+            [7, 4],
+            [7, 5],
+            [7, 6],
+            [7, 7],
+            [7, 8],
+        ],
+        [
+            [8, 3],
+            [8, 4],
+            [8, 5],
+            [8, 6],
+            [8, 7],
+            [8, 8],
+            [9, 3],
+            [9, 4],
+            [9, 5],
+            [9, 6],
+            [9, 7],
+            [9, 8],
+        ],
+        [
+            [10, 3],
+            [10, 4],
+            [10, 5],
+            [10, 6],
+            [10, 7],
+            [10, 8],
+            [11, 3],
+            [11, 4],
+            [11, 5],
+            [11, 6],
+            [11, 7],
+            [11, 8],
+        ],
+        [
+            [0, 9],
+            [0, 10],
+            [0, 11],
+            [1, 9],
+            [1, 10],
+            [1, 11],
+            [2, 9],
+            [2, 10],
+            [2, 11],
+            [3, 9],
+            [3, 10],
+            [3, 11],
+        ],
+        [
+            [4, 9],
+            [4, 10],
+            [4, 11],
+            [5, 9],
+            [5, 10],
+            [5, 11],
+            [6, 9],
+            [6, 10],
+            [6, 11],
+            [7, 9],
+            [7, 10],
+            [7, 11],
+        ],
+        [
+            [8, 9],
+            [8, 10],
+            [8, 11],
+            [9, 9],
+            [9, 10],
+            [9, 11],
+            [10, 9],
+            [10, 10],
+            [10, 11],
+            [11, 9],
+            [11, 10],
+            [11, 11],
+        ],
+    ];
+
+    for (const block of blocks) {
+        for (const item of block) {
+            if (i === item[0] && j === item[1]) {
+                return block.map((c) => [c[0], c[1]]);
+            }
+        }
+    }
+    throw new Error('ERROR');
+}
+
+writeToFile(generatePatternModel(4, getAnyRegular), 'regular');
+
+writeToFile(generatePatternModel(5, get5x5Cross), 'cross');
+
+writeToFile(generatePatternModel(6, get6x6Brickwall), 'brickwall');
+writeToFile(generatePatternModel(6, get6x6Ladder), 'ladder');
+
+writeToFile(generatePatternModel(7, get7x7Diagonal), 'diagonal');
+
+writeToFile(generatePatternModel(8, get8x8Brickwall), 'brickwall');
+writeToFile(generatePatternModel(8, get8x8Ladder), 'ladder');
+writeToFile(generatePatternModel(8, get8x8Cross), 'cross');
+
+writeToFile(generatePatternModel(9, getAnyRegular), 'regular');
+
+writeToFile(generatePatternModel(10, get10x10Brickwall), 'brickwall');
+writeToFile(generatePatternModel(10, get10x10Ladder), 'ladder');
+writeToFile(generatePatternModel(10, get10x10Ladder2), 'ladder-2');
+writeToFile(generatePatternModel(10, get10x10Diagonal), 'diagonal');
+writeToFile(generatePatternModel(10, get10x10Diamond), 'diamond');
+
+writeToFile(generatePatternModel(12, get12x12Brickwall), 'brickwall');
+writeToFile(generatePatternModel(12, get12x12Cross), 'cross');
+writeToFile(generatePatternModel(12, get12x12ShortAndLong), 'short-and-long');
+writeToFile(generatePatternModel(12, get12x12Ladder), 'ladder');
+
+writeToFile(generatePatternModel(16, getAnyRegular), 'regular');
