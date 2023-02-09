@@ -56,7 +56,7 @@
 ![img](./assets/10x10_ladder.png)
 
 ## 10x10 Ladder 2
-- Pattern id: `10_ladder2`
+- Pattern id: `10_ladder_2`
 
 ![img](./assets/10x10_ladder2.png)
 
@@ -70,15 +70,18 @@
 
 ![img](./assets/10x10_diamond.png)
 
-## 12x12 Cross `(WIP)`
+## 12x12 Cross
+- Pattern id: `12_cross`
 
 ![img](./assets/12x12_cross.png)
 
-## 12x12 Short and Long `(WIP)`
+## 12x12 Short and Long
+- Pattern id: `12_short_and_long`
 
 ![img](./assets/12x12_short_and_long.png)
 
-## 12x12 Ladder `(WIP)`
+## 12x12 Ladder
+- Pattern id: `12_ladder`
 
 ![img](./assets/12x12_ladder.png)
 
