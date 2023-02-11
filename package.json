@@ -11,7 +11,7 @@
     "bugs": {
         "url": "https://github.com/worgho2/sudoku-solver/issues"
     },
-    "license": "ISC",
+    "license": "MIT",
     "keywords": [
         "sudoku",
         "multi",
