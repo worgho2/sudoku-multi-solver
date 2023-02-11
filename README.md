@@ -1,4 +1,4 @@
-# sudoku-multi-solver
+# Overview
 A simple and powerful sudoku solver that supports multiple game patterns up to 16x16.
 
 ## Install
