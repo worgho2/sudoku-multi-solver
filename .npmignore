@@ -1,0 +1,7 @@
+docs
+scripts
+src
+tests
+.prettierignore
+.prettierrc.json
+tsconfig.json

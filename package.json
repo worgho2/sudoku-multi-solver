@@ -1,23 +1,30 @@
 {
-    "name": "sudoku-solver",
+    "name": "sudoku-multi-solver",
+    "author": "Otávio Baziewicz Filho",
     "version": "1.0.0",
-    "description": "Sudoku solver applying backtrack DSATUR algorithm [Korman 1979]",
-    "main": "index.js",
-    "scripts": {
-        "generate": "ts-node --esm scripts/generate-pattern-models.ts",
-        "start": "tsc && node dist/index.js"
-    },
+    "description": "A simple and powerful sudoku solver that supports multiple game patterns up to 16x16",
+    "homepage": "https://github.com/worgho2/sudoku-solver#readme",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/worgho2/sudoku-solver.git"
     },
-    "keywords": [],
-    "author": "Otávio Baziewicz Filho",
-    "license": "ISC",
     "bugs": {
         "url": "https://github.com/worgho2/sudoku-solver/issues"
     },
-    "homepage": "https://github.com/worgho2/sudoku-solver#readme",
+    "license": "ISC",
+    "keywords": [
+        "sudoku",
+        "multi",
+        "solver",
+        "sudoku-solver",
+        "sudoku-multi-solver"
+    ],
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "generate": "ts-node --esm scripts/generate-pattern-models.ts",
+        "start": "tsc && node dist/index.js"
+    },
     "devDependencies": {
         "prettier": "^2.8.3",
         "ts-node": "^10.9.1",

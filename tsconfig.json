@@ -1,16 +1,15 @@
 {
     "$schema": "https://json.schemastore.org/tsconfig",
     "compilerOptions": {
-        "module": "commonjs",
-        "moduleResolution": "node",
-        "target": "ESNext",
+        "target": "ES6",
+        "module": "CommonJS",
+        "lib": [],
+        "declaration": true,
+        "outDir": "dist",
         "strict": true,
         "esModuleInterop": true,
-        "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true,
-        "sourceMap": true,
-        "outDir": "dist",
         "resolveJsonModule": true
     },
-    "include": ["src/"]
+    "include": ["src/"],
+    "exclude": ["node_modules", "dist"]
 }

@@ -1,5 +1,11 @@
-# sudoku-solver
-Sudoku solver applying backtrack DSATUR algorithm [Korman 1979]. Supports 19 game patterns from 4x4 to 16x16
+# sudoku-multi-solver
+A simple and powerful sudoku solver that supports multiple game patterns up to 16x16.
+
+## Install
+
+```shell
+npm install sudoku-multi-solver
+```
 
 ## How to use
 The `SudokuSolver` class accepts three arguments:
@@ -7,6 +13,8 @@ The `SudokuSolver` class accepts three arguments:
 2. **emptyIdentifier**: A number less than or equal to 0, that the algorithm uses to identify empty positions in the board matrix.
 3. **pattern**: Enum item representing the game pattern. All available patterns are listed [here](./docs/supported-patterns.md).
 ```typescript
+import SudokuSolver from "sudoku-multi-solver";
+
 /**
  * 5x5 sudoku with cross pattern
  */
