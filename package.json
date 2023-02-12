@@ -1,7 +1,7 @@
 {
     "name": "sudoku-multi-solver",
     "author": "Otávio Baziewicz Filho",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "description": "A simple and powerful sudoku solver that supports multiple game patterns up to 16x16",
     "homepage": "https://github.com/worgho2/sudoku-solver#readme",
     "repository": {
@@ -22,8 +22,11 @@
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "scripts": {
-        "generate": "ts-node --esm scripts/generate-pattern-models.ts",
-        "start": "tsc && node dist/index.js"
+        "test": "echo not implemented yet",
+        "lint": "echo not implemented yet",
+        "format": "prettier --write .",
+        "build": "tsc",
+        "generate": "ts-node --esm scripts/generate-pattern-models.ts"
     },
     "devDependencies": {
         "prettier": "^2.8.3",
