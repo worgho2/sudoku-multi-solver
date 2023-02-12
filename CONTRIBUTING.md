@@ -4,7 +4,7 @@ Please read the text so that you understand how to conduct while contributing to
 
 ## Semantic Versioning
 
-Purgecss use [SemVer](http://semver.org/) for versioning.
+This project uses [SemVer](http://semver.org/) for versioning.
 
 ## Sending a Pull Request
 
