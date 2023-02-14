@@ -1,4 +1,5 @@
-# rollup-plugin-purgecss  
+# rollup-plugin-purgecss
+
 <!-- [![Build Status](https://travis-ci.org/FullHuman/rollup-plugin-purgecss.svg?branch=master)](https://travis-ci.org/FullHuman/rollup-plugin-purgecss) [![CircleCi](https://circleci.com/gh/FullHuman/rollup-plugin-purgecss/tree/master.svg?style=shield)]() [![dependencies Status](https://david-dm.org/fullhuman/rollup-plugin-purgecss/status.svg)](https://david-dm.org/fullhuman/rollup-plugin-purgecss) [![devDependencies Status](https://david-dm.org/fullhuman/rollup-plugin-purgecss/dev-status.svg)](https://david-dm.org/fullhuman/rollup-plugin-purgecss?type=dev)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/8ae0379b223a459ca1b704648e924d55)](https://www.codacy.com/app/FullHuman/rollup-plugin-purgecss?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=FullHuman/rollup-plugin-purgecss&amp;utm_campaign=Badge_Grade)
 [![npm](https://img.shields.io/npm/v/rollup-plugin-purgecss.svg)](https://www.npmjs.com/package/rollup-plugin-purgecss)
@@ -30,17 +31,13 @@ const board = [
 const solver = new SudokuSolver({
     board,
     emptyIdentifier: -1,
-    pattern: '5_cross'
+    pattern: '5_cross',
 });
 solver.solve();
 
 // OR
 
-SudokuSolver
-    .from({ board })
-    .setEmptyIdentifier(-1)
-    .setPattern('5_cross')
-    .solve()
+SudokuSolver.from({ board }).setEmptyIdentifier(-1).setPattern('5_cross').solve();
 ```
 
 ## Contributing
@@ -49,7 +46,7 @@ Please read [CONTRIBUTING.md](./.github/CONTRIBUTING.md) for details on our code
 
 ## Versioning
 
-[SemVer](http://semver.org/) is used for versioning. 
+[SemVer](http://semver.org/) is used for versioning.
 
 ## License
 

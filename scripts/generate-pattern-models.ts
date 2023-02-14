@@ -1,5 +1,5 @@
-import fs from 'node:fs';
-import path from 'node:path';
+import * as fs from 'fs';
+import * as path from 'path';
 
 type SudokuPatternModelBlock = [number, number][];
 type SudokuPatternModel = SudokuPatternModelBlock[][];
@@ -18,6 +18,7 @@ function writeToFile(patternModel: SudokuPatternModel, patternName: string) {
     fs.writeFile(filePath, JSON.stringify(patternModel), function (err) {
         if (err) {
             console.log(`Failed generating pattern model file: patterns/${order}/${patternName}.json`);
+            process.exit(1);
         }
         console.log(`Generated pattern model file: patterns/${order}/${patternName}.json`);
     });
@@ -30,8 +31,8 @@ function writeToFile(patternModel: SudokuPatternModel, patternName: string) {
  * @returns
  */
 function generatePatternModel(order: number, getPatternModelBlock: GetPatternModelBlockFunction): SudokuPatternModel {
-    const sudokuPatternModel: SudokuPatternModel = Array.from({ length: order }, (_) =>
-        Array.from({ length: order }, (_) => [])
+    const sudokuPatternModel: SudokuPatternModel = Array.from({ length: order }, () =>
+        Array.from({ length: order }, () => [])
     );
 
     for (let i = 0; i < order; i++) {
@@ -77,7 +78,7 @@ function getAnyRegular(i: number, j: number, order: number): SudokuPatternModelB
     return coordinates;
 }
 
-function get5x5Cross(i: number, j: number, order: number): SudokuPatternModelBlock {
+function get5x5Cross(i: number, j: number): SudokuPatternModelBlock {
     const blocks: [number, number][][] = [
         [
             [0, 0],
@@ -126,7 +127,7 @@ function get5x5Cross(i: number, j: number, order: number): SudokuPatternModelBlo
     throw new Error('ERROR');
 }
 
-function get6x6Brickwall(i: number, j: number, order: number): SudokuPatternModelBlock {
+function get6x6Brickwall(i: number, j: number): SudokuPatternModelBlock {
     const blocks = [
         [
             [0, 0],
@@ -188,7 +189,7 @@ function get6x6Brickwall(i: number, j: number, order: number): SudokuPatternMode
     throw new Error('ERROR');
 }
 
-function get6x6Ladder(i: number, j: number, order: number): SudokuPatternModelBlock {
+function get6x6Ladder(i: number, j: number): SudokuPatternModelBlock {
     const blocks: [number, number][][] = [
         [
             [0, 0],
@@ -250,7 +251,7 @@ function get6x6Ladder(i: number, j: number, order: number): SudokuPatternModelBl
     throw new Error('ERROR');
 }
 
-function get7x7Diagonal(i: number, j: number, order: number): SudokuPatternModelBlock {
+function get7x7Diagonal(i: number, j: number): SudokuPatternModelBlock {
     const blocks: [number, number][][] = [
         [
             [0, 0],
@@ -327,7 +328,7 @@ function get7x7Diagonal(i: number, j: number, order: number): SudokuPatternModel
     throw new Error('ERROR');
 }
 
-function get8x8Brickwall(i: number, j: number, order: number): SudokuPatternModelBlock {
+function get8x8Brickwall(i: number, j: number): SudokuPatternModelBlock {
     const blocks: [number, number][][] = [
         [
             [0, 0],
@@ -421,7 +422,7 @@ function get8x8Brickwall(i: number, j: number, order: number): SudokuPatternMode
     throw new Error('ERROR');
 }
 
-function get8x8Ladder(i: number, j: number, order: number): SudokuPatternModelBlock {
+function get8x8Ladder(i: number, j: number): SudokuPatternModelBlock {
     const blocks: [number, number][][] = [
         [
             [0, 0],
@@ -515,7 +516,7 @@ function get8x8Ladder(i: number, j: number, order: number): SudokuPatternModelBl
     throw new Error('ERROR');
 }
 
-function get8x8Cross(i: number, j: number, order: number): SudokuPatternModelBlock {
+function get8x8Cross(i: number, j: number): SudokuPatternModelBlock {
     const blocks: [number, number][][] = [
         [
             [3, 0],
@@ -609,7 +610,7 @@ function get8x8Cross(i: number, j: number, order: number): SudokuPatternModelBlo
     throw new Error('ERROR');
 }
 
-function get10x10Brickwall(i: number, j: number, order: number): SudokuPatternModelBlock {
+function get10x10Brickwall(i: number, j: number): SudokuPatternModelBlock {
     const blocks: [number, number][][] = [
         [
             [0, 0],
@@ -743,7 +744,7 @@ function get10x10Brickwall(i: number, j: number, order: number): SudokuPatternMo
     throw new Error('ERROR');
 }
 
-function get10x10Ladder(i: number, j: number, order: number): SudokuPatternModelBlock {
+function get10x10Ladder(i: number, j: number): SudokuPatternModelBlock {
     const blocks: [number, number][][] = [
         [
             [0, 0],
@@ -877,7 +878,7 @@ function get10x10Ladder(i: number, j: number, order: number): SudokuPatternModel
     throw new Error('ERROR');
 }
 
-function get10x10Ladder2(i: number, j: number, order: number): SudokuPatternModelBlock {
+function get10x10Ladder2(i: number, j: number): SudokuPatternModelBlock {
     const blocks: [number, number][][] = [
         [
             [0, 0],
@@ -1011,7 +1012,7 @@ function get10x10Ladder2(i: number, j: number, order: number): SudokuPatternMode
     throw new Error('ERROR');
 }
 
-function get10x10Diagonal(i: number, j: number, order: number): SudokuPatternModelBlock {
+function get10x10Diagonal(i: number, j: number): SudokuPatternModelBlock {
     const blocks: [number, number][][] = [
         [
             [0, 0],
@@ -1145,7 +1146,7 @@ function get10x10Diagonal(i: number, j: number, order: number): SudokuPatternMod
     throw new Error('ERROR');
 }
 
-function get10x10Diamond(i: number, j: number, order: number): SudokuPatternModelBlock {
+function get10x10Diamond(i: number, j: number): SudokuPatternModelBlock {
     const blocks: [number, number][][] = [
         [
             [0, 0],
@@ -1279,7 +1280,7 @@ function get10x10Diamond(i: number, j: number, order: number): SudokuPatternMode
     throw new Error('ERROR');
 }
 
-function get12x12Brickwall(i: number, j: number, order: number): SudokuPatternModelBlock {
+function get12x12Brickwall(i: number, j: number): SudokuPatternModelBlock {
     const blocks: [number, number][][] = [
         [
             [0, 0],
@@ -1461,7 +1462,7 @@ function get12x12Brickwall(i: number, j: number, order: number): SudokuPatternMo
     throw new Error('ERROR');
 }
 
-function get12x12Cross(i: number, j: number, order: number): SudokuPatternModelBlock {
+function get12x12Cross(i: number, j: number): SudokuPatternModelBlock {
     const blocks: [number, number][][] = [
         [
             [0, 0],
@@ -1643,7 +1644,7 @@ function get12x12Cross(i: number, j: number, order: number): SudokuPatternModelB
     throw new Error('ERROR');
 }
 
-function get12x12ShortAndLong(i: number, j: number, order: number): SudokuPatternModelBlock {
+function get12x12ShortAndLong(i: number, j: number): SudokuPatternModelBlock {
     const blocks: [number, number][][] = [
         [
             [0, 0],
@@ -1825,7 +1826,7 @@ function get12x12ShortAndLong(i: number, j: number, order: number): SudokuPatter
     throw new Error('ERROR');
 }
 
-function get12x12Ladder(i: number, j: number, order: number): SudokuPatternModelBlock {
+function get12x12Ladder(i: number, j: number): SudokuPatternModelBlock {
     const blocks: [number, number][][] = [
         [
             [0, 0],

@@ -17,6 +17,7 @@ export default class SudokuGraph {
         }
 
         try {
+            // eslint-disable-next-line @typescript-eslint/no-var-requires
             this.patternModel = require(patternData.filePath) as SudokuPatternModel;
         } catch (error) {
             throw new SudokuSolverError('MissingPatternModelFile');

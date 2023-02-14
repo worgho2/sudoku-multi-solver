@@ -105,3 +105,12 @@ dist
 
 # MacOS
 .DS_Store
+
+# Transpiled code
+lib
+
+# Rollup cache
+.rollup.cache
+
+# Compiled tests
+temp

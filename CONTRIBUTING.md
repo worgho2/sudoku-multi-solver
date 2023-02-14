@@ -15,18 +15,18 @@ This project uses [SemVer](http://semver.org/) for versioning.
 2. If you've added code that should be tested, add tests!
 3. If you've changed APIs, update the documentation.
 4. Ensure the test suite passes (`npm test`).
-4. Make sure your code lints and styles (`npm run lint && npm run format`).
+5. Make sure your code lints and styles (`npm run lint && npm run format`).
 
 ### Development Workflow
 
 After cloning, run `npm install` to fetch its dependencies. Then, you can run
 several commands:
 
-* `npm run build` will build cjs and es module in the `lib` folder.
-* `npm run lint` checks the code style.
-* `npm run format` applies code formatting style.
-* `npm test` runs the complete test suite.
-* `npm run generate` generates game pattern models.
+-   `npm run build` will build cjs and es module in the `lib` folder.
+-   `npm run lint` checks the code style.
+-   `npm run format` applies code formatting style.
+-   `npm test` runs the complete test suite.
+-   `npm run generate` generates game pattern models.
 
 Make sure that your pull request contains unit tests for any new functionality.
 This way we can ensure that we don't break your code in the future.
