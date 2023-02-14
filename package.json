@@ -1,7 +1,7 @@
 {
     "name": "sudoku-multi-solver",
     "author": "Otávio Baziewicz Filho",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "description": "A simple and powerful sudoku solver that supports multiple game patterns up to 16x16",
     "homepage": "https://github.com/worgho2/sudoku-solver#readme",
     "repository": {
