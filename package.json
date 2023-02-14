@@ -36,7 +36,7 @@
     "scripts": {
         "prepare": "husky install",
         "pretest": "rimraf temp/__tests__ && tsc --project __tests__",
-        "test": "jest",
+        "test": "jest .test.js",
         "prebuild": "rimraf lib",
         "build": "rollup -c",
         "dev": "rollup -c -w",
