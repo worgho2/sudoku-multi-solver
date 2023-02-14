@@ -1,6 +1,11 @@
 name: Build / Test
 
-on: [push, pull_request]
+on:
+  push:
+    tags-ignore:
+      - '*'
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
   build:
@@ -12,11 +17,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
+
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - name: npm install, run build and test
+
+      - name: Install, Build and Test
         run: |
           npm ci
           npm run build
