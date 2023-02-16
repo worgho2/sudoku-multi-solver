@@ -30,11 +30,11 @@ const solver = new SudokuSolver({
     emptyIdentifier: -1,
     pattern: '5_cross',
 });
-solver.solve();
+await solver.solve();
 
 // OR
 
-SudokuSolver.from({ board }).setEmptyIdentifier(-1).setPattern('5_cross').solve();
+await SudokuSolver.from({ board }).setEmptyIdentifier(-1).setPattern('5_cross').solve();
 ```
 
 ## Contributing
