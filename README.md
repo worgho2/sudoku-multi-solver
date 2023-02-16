@@ -2,7 +2,6 @@
 
 [![npm](https://img.shields.io/npm/v/sudoku-multi-solver.svg)](https://www.npmjs.com/package/sudoku-multi-solver) ![npm](https://img.shields.io/npm/dm/sudoku-multi-solver) [![license](https://img.shields.io/github/license/worgho2/sudoku-multi-solver.svg)]() ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/worgho2/sudoku-multi-solver/build-and-test.yml)
 
-
 A simple and powerful sudoku solver that supports multiple [game patterns](./docs/supported-patterns.md) up to 16x16.
 
 ## Install

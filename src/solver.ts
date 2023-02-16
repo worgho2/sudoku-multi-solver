@@ -28,12 +28,14 @@ export default class SudokuSolver {
         return this;
     }
 
-    solve(): number[][] {
+    async solve(): Promise<number[][]> {
         const graph = new SudokuGraph({
             board: this.board,
             emptyIdentifier: this.emptyIdentifier,
             pattern: this.pattern,
         });
+
+        await graph.initialize();
 
         const success = this.run(graph);
 

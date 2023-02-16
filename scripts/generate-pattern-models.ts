@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import msgpack5 from 'msgpack5';
 
 type SudokuPatternModelBlock = [number, number][];
 type SudokuPatternModel = SudokuPatternModelBlock[][];
@@ -13,14 +14,16 @@ type GetPatternModelBlockFunction = (i: number, j: number, order: number) => Sud
  */
 function writeToFile(patternModel: SudokuPatternModel, patternName: string) {
     const order = patternModel.length;
-    const filePath = path.resolve(__dirname, '..', 'pattern-models', `${order}`, `${patternName}.json`);
+    const filePath = path.resolve(__dirname, '..', 'pattern-models', `${order}`, `${patternName}`);
+    const buff = msgpack5().encode(patternModel);
 
-    fs.writeFile(filePath, JSON.stringify(patternModel), function (err) {
+    fs.writeFile(filePath, buff.toString(`binary`), 'binary', function (err) {
         if (err) {
-            console.log(`Failed generating pattern model file: patterns/${order}/${patternName}.json`);
+            console.log(`Failed generating pattern model file: ${filePath}`);
             process.exit(1);
         }
-        console.log(`Generated pattern model file: patterns/${order}/${patternName}.json`);
+
+        console.log(`Generated ${filePath}`);
     });
 }
 
