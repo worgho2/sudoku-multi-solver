@@ -42,7 +42,7 @@
         "dev": "rollup -c -w",
         "lint": "eslint . --fix",
         "format": "prettier --write .",
-        "generate-changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
+        "generate-changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0",
         "generate-pattern-models": "ts-node scripts/generate-pattern-models.ts"
     },
     "devDependencies": {
