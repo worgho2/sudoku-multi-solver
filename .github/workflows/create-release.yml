@@ -6,51 +6,36 @@ on:
 name: Create Release
 
 jobs:
-  generate-changelog:
-    name: Generate Changelog
+  create-release:
+    name: Create release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
+        id: checkout-code
         uses: actions/checkout@v2
-        with:
-          ref: main
-          ssh-key: ${{ secrets.DEPLOY_KEY }}
 
-      - name: Setup Node.js
+      - name: Setup node
+        id: setup-node
         uses: actions/setup-node@v2
         with:
           node-version: '16'
 
-      - name: Setup Git
-        run: |
-          git config user.name '${{secrets.MAINTAINER_NAME}}'
-          git config user.email '${{secrets.MAINTAINER_EMAIL}}'
-          git fetch --tags
-
-      - name: Install Dependencies
-        run: |
-          npm ci
-
-      - name: Generate Changelog
-        run: |
-          npm run generate-changelog
-
-      - name: Commit and Push latest version
-        run: |
-          git add .
-          git commit --allow-empty -m "docs: generate changelog ${{ github.ref_name }} [skip ci]"
-          git push origin main
-
-  publish:
-    name: Publish to npm
-    runs-on: ubuntu-latest
-    needs: generate-changelog
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - name: Generate changelog
+        id: generate-changelog
+        uses: TriPSs/conventional-changelog-action@v3
         with:
-          node-version: '16'
-      - name: Publish
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          git-message: 'docs(changelog): ${{ github.ref_name }}'
+          git-user-name: ${{ secrets.MAINTAINER_NAME }}
+          git-user-email: ${{ secrets.MAINTAINER_EMAIL }}
+          release-count: '0'
+          skip-on-empty: 'false'
+          skip-version-file: 'true'
+          skip-tag: 'true'
+          skip-ci: 'true'
+
+      - name: Pulish to npm
+        id: publish-to-npm
         run: |
           npm config set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
           npm ci
@@ -59,19 +44,15 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-  create-github-release:
-    name: Create GitHub Release
-    runs-on: ubuntu-latest
-    needs: publish
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Create Release Notes
-        uses: actions/github-script@v4.0.2
+      - name: Create github release
+        id: create-github-release
+        uses: actions/github-script@v6
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            await github.request(`POST /repos/${{ github.repository }}/releases`, {
+            github.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
               tag_name: "${{ github.ref }}",
-              generate_release_notes: true
+              body: "${{ steps.generate-changelog.outputs.clean_changelog }}"
             });
