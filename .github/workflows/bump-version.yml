@@ -1,4 +1,4 @@
-name: Bump version
+name: Bump Version
 
 on:
   workflow_dispatch:
@@ -16,26 +16,15 @@ jobs:
   bump-version:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out source
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           ssh-key: ${{ secrets.DEPLOY_KEY }}
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
-          node-version: '16'
-
-      - name: Install npm packages
-        run: npm ci
-
-      - name: Setup Git
-        run: |
-          git config user.name '${{secrets.MAINTAINER_NAME}}'
-          git config user.email '${{secrets.MAINTAINER_EMAIL}}'
-
-      - name: Bump version
-        run: npm version ${{ github.event.inputs.version }}
-
-      - name: Push latest version
-        run: git push origin main --follow-tags
+          node-version: 16
+      - run: |
+          git config user.name '${{ secrets.MAINTAINER_NAME }}'
+          git config user.email '${{ secrets.MAINTAINER_EMAIL }}'
+          npm ci
+          npm version ${{ github.event.inputs.version }}
+          git push origin main --follow-tags
