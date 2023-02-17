@@ -1,3 +1,12 @@
+## [2.0.5](https://github.com/worgho2/sudoku-solver/compare/v2.0.4...v2.0.5) (2023-02-17)
+
+
+### Bug Fixes
+
+* **ci:** add correct github action script ([93a5d0e](https://github.com/worgho2/sudoku-solver/commit/93a5d0e5020c148d5df100094d26efefa1eb376c))
+
+
+
 ## [2.0.4](https://github.com/worgho2/sudoku-solver/compare/v2.0.3...v2.0.4) (2023-02-17)
 
 
