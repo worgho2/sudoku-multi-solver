@@ -35,7 +35,7 @@
     ],
     "scripts": {
         "prepare": "is-ci || husky install",
-        "pretest": "rimraf temp/__tests__ && tsc --project __tests__",
+        "pretest": "rimraf temp && tsc --project __tests__",
         "test": "jest .test.js",
         "prebuild": "rimraf lib",
         "build": "rollup -c",
@@ -52,6 +52,7 @@
         "@types/jest": "^29.4.0",
         "@types/msgpack5": "^3.4.3",
         "@types/node": "^18.13.0",
+        "@types/readable-stream": "^2.3.15",
         "@typescript-eslint/eslint-plugin": "^5.51.0",
         "@typescript-eslint/parser": "^5.51.0",
         "conventional-changelog-cli": "^2.2.2",

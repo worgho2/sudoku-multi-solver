@@ -6,7 +6,7 @@ export type SudokuPatternData = {
     filePath: string;
 };
 
-const getFilePath = (order: number, pattern: string) => resolve(__dirname, `../pattern-models/${order}/${pattern}`);
+const getFilePath = (order: number, pattern: string) => resolve(process.cwd(), `pattern-models/${order}/${pattern}`);
 
 export const sudokuPatternDataMap: {
     [k in keyof typeof SudokuPatterns]: SudokuPatternData;

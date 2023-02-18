@@ -1,7 +1,11 @@
 {
     "extends": "../tsconfig.json",
     "compilerOptions": {
-        "outDir": "../temp"
+        "outDir": "../temp",
+        "composite": false,
+        "declaration": false,
+        "module": "CommonJS",
+        "sourceMap": false
     },
-    "include": ["*.ts"]
+    "include": ["*.ts", "../src/**/*.ts"]
 }

@@ -2,3 +2,4 @@
 .rollup.cache
 lib
 pattern-models
+temp
