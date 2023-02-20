@@ -4,15 +4,25 @@
         "module": "ESNext",
         "moduleResolution": "node",
         "lib": ["ESNext", "DOM"],
-        "types": ["jest", "node"],
-        "allowJs": false,
+        "allowJs": true,
         "declaration": true,
         "sourceMap": true,
         "removeComments": false,
         "strict": true,
         "rootDir": ".",
+        "baseUrl": ".",
+        "paths": {},
+        "outDir": "./lib",
         "esModuleInterop": true,
         "composite": true,
         "forceConsistentCasingInFileNames": true
-    }
+    },
+    "ts-node": {
+        "compilerOptions": {
+            "esModuleInterop": true,
+            "module": "CommonJS"
+        }
+    },
+    "include": ["src", "__tests__"],
+    "exclude": ["lib"]
 }

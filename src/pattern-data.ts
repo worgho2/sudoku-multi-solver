@@ -1,4 +1,3 @@
-import { resolve } from 'path';
 import { SudokuPatterns } from './patterns';
 
 export type SudokuPatternData = {
@@ -6,7 +5,9 @@ export type SudokuPatternData = {
     filePath: string;
 };
 
-const getFilePath = (order: number, pattern: string) => resolve(process.cwd(), `pattern-models/${order}/${pattern}`);
+function getFilePath(order: number, pattern: string): string {
+    return new URL(`../pattern-models/${order}/${pattern}`, import.meta.url).pathname;
+}
 
 export const sudokuPatternDataMap: {
     [k in keyof typeof SudokuPatterns]: SudokuPatternData;

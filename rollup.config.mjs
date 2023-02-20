@@ -7,7 +7,8 @@ function getConfig() {
     const fileName = isDevelopment ? 'sudoku-multi-solver.development' : 'sudoku-multi-solver';
 
     return {
-        input: 'src/index.ts',
+        input: './src/index.ts',
+        external: ['msgpack5', 'fs/promises'],
         plugins: [
             replace({
                 preventAssignment: true,
@@ -16,7 +17,7 @@ function getConfig() {
                 },
             }),
             typescript({
-                tsconfig: './src/tsconfig.json',
+                tsconfig: './tsconfig.json',
                 sourceMap: false,
                 outputToFilesystem: true,
             }),

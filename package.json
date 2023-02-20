@@ -22,6 +22,18 @@
     "main": "lib/sudoku-multi-solver.js",
     "module": "lib/sudoku-multi-solver.mjs",
     "types": "lib/src/index.d.ts",
+    "exports": {
+        ".": {
+            "require": "./lib/sudoku-multi-solver.js",
+            "import": "./lib/sudoku-multi-solver.mjs",
+            "types": "./lib/sudoku-multi-solver.d.ts"
+        },
+        "./development": {
+            "require": "./lib/sudoku-multi-solver.development.js",
+            "import": "./lib/sudoku-multi-solver.development.mjs",
+            "types": "./lib/sudoku-multi-solver.d.ts"
+        }
+    },
     "lint-staged": {
         "*.ts": [
             "npm run format",
@@ -35,8 +47,7 @@
     ],
     "scripts": {
         "prepare": "is-ci || husky install",
-        "pretest": "rimraf temp && tsc --project __tests__",
-        "test": "jest .test.js",
+        "test": "node --experimental-vm-modules --no-warnings node_modules/jest/bin/jest.js --no-cache",
         "prebuild": "rimraf lib",
         "build": "rollup -c",
         "dev": "rollup -c -w",
@@ -44,6 +55,9 @@
         "format": "prettier --write .",
         "generate-changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0",
         "generate-pattern-models": "ts-node scripts/generate-pattern-models.ts"
+    },
+    "dependencies": {
+        "msgpack5": "^6.0.2"
     },
     "devDependencies": {
         "@rollup/plugin-replace": "^5.0.2",
@@ -64,10 +78,8 @@
         "prettier": "^2.8.3",
         "rimraf": "^4.1.2",
         "rollup": "^3.15.0",
+        "ts-jest": "^29.0.5",
         "ts-node": "^10.9.1",
         "typescript": "^4.9.5"
-    },
-    "dependencies": {
-        "msgpack5": "^6.0.2"
     }
 }
